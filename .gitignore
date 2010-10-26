@@ -1,9 +1,10 @@
 *_m.h
 *_m.cc
 .tstamp
+.tkenvrc
 env.sh
 **/Makefile
 out
 results
 **.vci
-
+mixtrama
