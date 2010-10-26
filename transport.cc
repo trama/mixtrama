@@ -15,13 +15,13 @@ void transport::initialize(int stage){
 			numApplLayer = par("numApplLayer");
 			debug = par("debug").boolValue();
 
-			EV << "the gates present in this modules are:\n"<<
+			EV << "the gates present in this modules are:\nHigher ports\n"<<
 			upperGateIn<<" "<<
 			upperGateOut <<" "<<
-	        lowerGateIn<<" "<<
-	        lowerGateOut <<" "<<
-	        upperControlIn  <<" "<<
-	        upperControlOut<<" "<<
+	        upperControlIn<<" "<<
+	        upperControlOut <<" \nLower ports\n"<<
+	        lowerGateIn  <<" "<<
+	        lowerGateOut<<" "<<
 	        lowerControlIn  <<" "<<
 	        lowerControlOut <<endl;
 
