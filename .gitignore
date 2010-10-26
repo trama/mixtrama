@@ -3,6 +3,7 @@
 .tstamp
 .tkenvrc
 env.sh
+Makefile
 **/Makefile
 out
 results
