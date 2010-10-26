@@ -1,5 +1,6 @@
 package test;
 
+import org.mixim.modules.application.SensorApplLayer;
 import org.mixim.modules.power.battery.SimpleBattery;
 import org.mixim.modules.power.battery.BatteryStats;
 import org.mixim.modules.netw.ArpHost;
@@ -11,7 +12,7 @@ module Node
 {
     parameters:
         int addr;
-        @display("bgb=388,386,white");
+        @display("bgb=388,386,white;bgl=3");
     gates:
         input radioIn; // gate for sendDirect
     submodules:
@@ -36,18 +37,25 @@ module Node
         appl: NetworkStackTrafficGen {
             parameters:
                 myAddr = addr;
-                @display("p=73,89;i=app");
+                @display("p=52,37;i=app");
         }
         nic: Nic802154_TI_CC2420 {
             parameters:
-                @display("p=74,281;i=iface");
+                @display("p=73,309;i=iface");
+        }
+        transport: transport {
+            @display("p=151,172");
         }
     connections:
-        nic.upperGateOut --> appl.lowerGateIn;
-        nic.upperGateIn <-- appl.lowerGateOut;
-        nic.upperControlOut --> { @display("ls=red;m=m,70,0,70,0"); } --> appl.lowerControlIn;
-        nic.upperControlIn <-- { @display("ls=red;m=m,70,0,70,0"); } <-- appl.lowerControlOut;
+        appl.lowerGateOut --> transport.upperGateIn[0];
+        appl.lowerControlOut --> { @display("ls=red;m=m,70,0,70,0"); } --> transport.upperControlIn[0];
 
         radioIn --> nic.radioIn;
 
+        transport.lowerControlOut --> nic.upperControlIn;
+        transport.lowerGateOut --> nic.upperGateIn;
+        nic.upperControlOut --> transport.lowerControlIn;
+        nic.upperGateOut --> transport.lowerGateIn;
+        transport.upperControlOut[0] --> appl.lowerControlIn;
+        transport.upperGateOut[0] --> appl.lowerGateIn;
 }

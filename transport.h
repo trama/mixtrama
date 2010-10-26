@@ -14,14 +14,20 @@ class transport: public BaseLayer {
 public:
 	virtual void initialize(int);
 	virtual void finish();
-	transport();
 	virtual ~transport();
 protected:
+		virtual void handleMessage(cMessage* msg);
 	    virtual void handleSelfMsg(cMessage* msg);
 	    virtual void handleUpperMsg(cMessage *msg);
 	    virtual void handleLowerMsg(cMessage *msg);
 	    virtual void handleLowerControl(cMessage *msg);
 	    virtual void handleUpperControl(cMessage *msg);
+
+	    bool debug;
+
+	    int numApplLayer;
+
+
 };
 
 #endif /* TRANSPORT_H_ */
