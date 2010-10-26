@@ -24,9 +24,9 @@ protected:
 	    virtual void handleUpperControl(cMessage *msg);
 
 	    bool debug;
-
+	    int nbPacketDropped;
 	    int numApplLayer;
-
+	    simtime_t elab_time;
 
 };
 

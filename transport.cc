@@ -6,6 +6,7 @@
  */
 
 #include "transport.h"
+#include <BaseMacLayer.h>
 
 Define_Module(transport);
 
@@ -14,6 +15,16 @@ void transport::initialize(int stage){
 		if(stage == 0) {
 			numApplLayer = par("numApplLayer");
 			debug = par("debug").boolValue();
+			elab_time = par("elaborationTime").doubleValue();
+
+			EV << "Transport elab_time "<<elab_time<<endl;
+			//for now, only one app layer supported
+
+	        upperGateIn  = gateBaseId("upperGateIn");
+	        upperGateOut = gateBaseId("upperGateOut");
+	        upperControlIn  = gateBaseId("upperControlIn");
+	        upperControlOut = gateBaseId("upperControlOut");
+
 
 			EV << "the gates present in this modules are:\nHigher ports\n"<<
 			upperGateIn<<" "<<
@@ -27,6 +38,9 @@ void transport::initialize(int stage){
 
 			EV << "The gates upperGateIn/Out and ControlIn/Out are vector gates with size"<<
 					(isGateVector("upperGateIn") ? gateSize("upperGateIn") : -20 )<<endl;
+
+	        nbPacketDropped = 0;
+
 		}
 }
 
@@ -65,7 +79,9 @@ void transport::handleMessage(cMessage* msg)
 }
 
 void transport::finish(){
+    recordScalar("dropped", nbPacketDropped);
 
+    //cancelAndDelete(delayTimer);
 }
 
 transport::~transport(){
@@ -75,7 +91,32 @@ transport::~transport(){
 
 
 void transport::handleSelfMsg(cMessage* msg){}
-void transport::handleUpperMsg(cMessage *msg){}
-void transport::handleLowerMsg(cMessage *msg){}
-void transport::handleLowerControl(cMessage *msg){}
-void transport::handleUpperControl(cMessage *msg){}
+void transport::handleUpperMsg(cMessage *msg){
+	EV<<"Received packet from up\nSending packet down\n";
+	sendDelayed(msg,elab_time,lowerGateOut);
+}
+
+void transport::handleLowerMsg(cMessage *msg){
+	EV<<"Received packet from down\nSending packet up\n";
+	sendDelayed(msg,elab_time,upperGateOut);
+}
+
+void transport::handleLowerControl(cMessage *msg){
+
+    if (msg->getKind() == BaseMacLayer::PACKET_DROPPED)
+    {
+        nbPacketDropped++;
+        delete msg;
+        msg = 0;
+    }
+    else
+    {
+    	EV<<"Received control from down\nSending control up\n";
+    	sendControlUp(msg);
+    }
+}
+
+void transport::handleUpperControl(cMessage *msg){
+	EV<<"Received control from up\nSending control down\n";
+	sendControlDown(msg);
+}
