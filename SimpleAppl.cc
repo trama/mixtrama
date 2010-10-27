@@ -13,16 +13,16 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#include "NetworkStackTrafficGen.h"
+#include "SimpleAppl.h"
 #include "NetwToMacControlInfo.h"
 #include <cassert>
 #include <Packet.h>
 #include <BaseMacLayer.h>
 
 
-Define_Module(NetworkStackTrafficGen);
+Define_Module(SimpleAppl);
 
-void NetworkStackTrafficGen::initialize(int stage)
+void SimpleAppl::initialize(int stage)
 {
     BaseLayer::initialize(stage);
 
@@ -45,29 +45,56 @@ void NetworkStackTrafficGen::initialize(int stage)
 
         Packet p(1);
         catPacket = world->getCategory(&p);
-    }
-    else if (stage == 1)
-    {
-        if (burstSize > 0)
-        {
+    } else if (stage == 1){
+        if (burstSize > 0) {
             remainingBurst = burstSize;
             scheduleAt(dblrand() * packetTime * burstSize / pppt, delayTimer);
         }
-    }
-    else
-    {
-
+//    if (stage!=3)
+//        return;
+//
+//    counter = 0;
+//    numSent = 0;
+//    numReceived = 0;
+//    WATCH(numSent);
+//    WATCH(numReceived);
+//
+      localPort = par("localPort");
+//    destPort = par("destPort");
+//
+//    const char *destAddrs = par("destAddresses");
+//    cStringTokenizer tokenizer(destAddrs);
+//    const char *token;
+//    while ((token = tokenizer.nextToken())!=NULL)
+//        destAddresses.push_back(IPAddressResolver().resolve(token));
+//
+//    if (destAddresses.empty())
+//        return;
+//
+      bindToPort(localPort);
     }
 }
 
-void NetworkStackTrafficGen::finish()
+void SimpleAppl::bindToPort(int port)
+{
+    EV << "Binding to transport  port " << port << endl;
+
+    cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
+    transpCInfo *ctrl = new transpCInfo();
+    ctrl->setSrcPort(port);
+    ctrl->setSockId(getId());
+    msg->setControlInfo(ctrl);
+    send(msg, "lowerControlOut");
+}
+
+void SimpleAppl::finish()
 {
     recordScalar("dropped", nbPacketDropped);
 
     cancelAndDelete(delayTimer);
 }
 
-void NetworkStackTrafficGen::handleSelfMsg(cMessage * msg)
+void SimpleAppl::handleSelfMsg(cMessage * msg)
 {
     switch (msg->getKind())
     {
@@ -97,7 +124,7 @@ void NetworkStackTrafficGen::handleSelfMsg(cMessage * msg)
 }
 
 
-void NetworkStackTrafficGen::handleLowerMsg(cMessage * msg)
+void SimpleAppl::handleLowerMsg(cMessage * msg)
 {
     Packet p(packetLength, 1, 0);
     world->publishBBItem(catPacket, &p, -1);
@@ -107,7 +134,7 @@ void NetworkStackTrafficGen::handleLowerMsg(cMessage * msg)
 }
 
 
-void NetworkStackTrafficGen::handleLowerControl(cMessage * msg)
+void SimpleAppl::handleLowerControl(cMessage * msg)
 {
     if (msg->getKind() == BaseMacLayer::PACKET_DROPPED)
     {
@@ -117,18 +144,20 @@ void NetworkStackTrafficGen::handleLowerControl(cMessage * msg)
     msg = 0;
 }
 
-void NetworkStackTrafficGen::sendBroadcast()
+void SimpleAppl::sendBroadcast()
 {
+
+	transpCInfo *ctrl = new transpCInfo();
+	ctrl->setSockId(getId());
+	ctrl->setSrcPort(localPort);
+	ctrl->setDestination(destination);
+	ctrl->setDestPort(localPort);
+	ctrl->setSource(myNetwAddr);
+
     NetwPkt *pkt = new NetwPkt("BROADCAST_MESSAGE", BROADCAST_MESSAGE);
     pkt->setBitLength(packetLength);
 
-    pkt->setSrcAddr(myNetwAddr);
-    pkt->setDestAddr(destination);
-
-    pkt->setControlInfo(new NetwToMacControlInfo(destination));
-
-    Packet p(packetLength, 0, 1);
-    world->publishBBItem(catPacket, &p, -1);
+    pkt->setControlInfo(ctrl);
 
     sendDown(pkt);
 }

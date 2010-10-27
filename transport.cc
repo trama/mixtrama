@@ -7,6 +7,15 @@
 
 #include "transport.h"
 #include <BaseMacLayer.h>
+#include "NetwPkt_m.h"
+#include "NetwToMacControlInfo.h"
+
+	enum TrafficGenMessageKinds{
+
+		SEND_BROADCAST_TIMER = 1,
+		BROADCAST_MESSAGE
+	};
+
 
 Define_Module(transport);
 
@@ -24,7 +33,8 @@ void transport::initialize(int stage){
 	        upperGateOut = gateBaseId("upperGateOut");
 	        upperControlIn  = gateBaseId("upperControlIn");
 	        upperControlOut = gateBaseId("upperControlOut");
-
+	        //this are the base address gate, i.e. the ones associated to gate 0
+	        //one can obtain the other gate with baseaddr + index
 
 			EV << "the gates present in this modules are:\nHigher ports\n"<<
 			upperGateIn<<" "<<
@@ -88,12 +98,72 @@ transport::~transport(){
 
 }
 
+//void UDPAppBase::bindToPort(int port)
+//{
+//    EV << "Binding to UDP port " << port << endl;
+//
+//    // TODO UDPAppBase should be ported to use UDPSocket sometime, but for now
+//    // we just manage the UDP socket by hand...
+//    cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
+//    UDPControlInfo *ctrl = new UDPControlInfo();
+//    ctrl->setSrcPort(port);
+//    ctrl->setSockId(getId());
+//    msg->setControlInfo(ctrl);
+//    send(msg, "udpOut");
+//}
+static std::ostream & operator<<(std::ostream & os, const transport::sck& sd)
+{
+    os << "sockId=" << sd.sockId;
+    os << " appGateIndex=" << sd.appGateIndex;
+    os << " localPort=" << sd.localPort;
+    return os;
+}
+
+void transport::bind(int gateIndex, transpCInfo *ctrl)
+{
+
+    // create and fill in description of a socket
+    sck *sd = new sck();
+    sd->sockId = ctrl->getSockId();
+    sd->appGateIndex = gateIndex;
+    sd->localPort = ctrl->getSrcPort();
+
+    if (sd->sockId==-1)
+        error("sockId in BIND message not filled in");
+    if (sd->localPort==0)
+        error("Local port could not be 0"); //sd->localPort = getEphemeralPort();
+
+    EV << "Binding socket: " << *sd << "\n";
+
+    // add to socketsByIdMap
+    ASSERT(scksID.find(sd->sockId)==scksID.end());
+    scksID[sd->sockId] = sd;
+
+    // add to socketsByPortMap
+    //SockDescList& list = socketsByPortMap[sd->localPort]; // create if doesn't exist
+    //list.push_back(sd);
+}
 
 
 void transport::handleSelfMsg(cMessage* msg){}
+
 void transport::handleUpperMsg(cMessage *msg){
+
+	transpCInfo *ctrl = check_and_cast<transpCInfo *>(msg->removeControlInfo());
+
+    NetwPkt *pkt = new NetwPkt("BROADCAST_MESSAGE", BROADCAST_MESSAGE);
+
+    pkt->setBitLength(static_cast<cPacket*>(msg)->getBitLength());
+
+    pkt->setSrcAddr(ctrl->getSource());
+
+    pkt->setDestAddr(ctrl->getDestination());
+
+    // necessario per il mac perché si prende la destinazione da qui!
+    pkt->setControlInfo(new NetwToMacControlInfo(ctrl->getDestination()));
+
 	EV<<"Received packet from up\nSending packet down\n";
-	sendDelayed(msg,elab_time,lowerGateOut);
+	sendDelayed(pkt,elab_time,lowerGateOut);
 }
 
 void transport::handleLowerMsg(cMessage *msg){
@@ -117,6 +187,13 @@ void transport::handleLowerControl(cMessage *msg){
 }
 
 void transport::handleUpperControl(cMessage *msg){
+	if(msg->getKind() == UDP_C_BIND){
+		transpCInfo *ctrl = check_and_cast<transpCInfo *>(msg->removeControlInfo());
+		bind(msg->getArrivalGate()->getIndex(), ctrl);
+	    delete ctrl;
+	    delete msg;
+	}else{
 	EV<<"Received control from up\nSending control down\n";
 	sendControlDown(msg);
+	}
 }

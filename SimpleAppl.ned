@@ -18,13 +18,14 @@ package test;
 //
 // TODO auto-generated module
 //
-simple NetworkStackTrafficGen
+simple SimpleAppl
 {
     parameters:
         int myAddr;
         double packetTime @unit(s);
         double packetsPerPacketTime;
         bool debug; // debug switch
+        int localPort = default(1234);
         int burstSize = default(1);
         int packetLength @unit("bit"); // length of the generated packet (in bits)
         int destination = default(-1);

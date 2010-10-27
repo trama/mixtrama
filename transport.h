@@ -9,12 +9,27 @@
 #define TRANSPORT_H_
 
 #include "BaseLayer.h"
+#include <map>
+#include <list>
+#include "transpCInfo_m.h"
 
 class transport: public BaseLayer {
+
 public:
 	virtual void initialize(int);
 	virtual void finish();
 	virtual ~transport();
+
+    struct sck //socket definition
+    {
+        int sockId; // supposed to be unique across apps
+        int appGateIndex;
+        ushort localPort;
+    };
+
+    typedef std::list<sck *> sckl; // list of sockets
+    typedef std::map<int,sck *> sckIdMap;
+
 protected:
 		virtual void handleMessage(cMessage* msg);
 	    virtual void handleSelfMsg(cMessage* msg);
@@ -28,6 +43,10 @@ protected:
 	    int numApplLayer;
 	    simtime_t elab_time;
 
+	    sckIdMap scksID;
+
+	    // bind socket
+	    virtual void bind(int gateIndex, transpCInfo *ctrl);
 };
 
 #endif /* TRANSPORT_H_ */

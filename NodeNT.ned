@@ -34,7 +34,7 @@ module NodeNT
             parameters:
                 @display("p=257,305;i=cogwheel2");
         }
-        appl: NetworkStackTrafficGen {
+        appl: SimpleAppl {
             parameters:
                 myAddr = addr;
                 @display("p=77,109;i=app");

@@ -17,6 +17,7 @@
 #define NETWORKSTACKTRAFFICGEN_H_
 
 #include "NetwPkt_m.h"
+#include "transpCInfo_m.h"
 #include "SimpleAddress.h"
 #include "BaseLayer.h"
 #include "BaseArp.h"
@@ -29,7 +30,7 @@
  *
  * @ingroup exampleIEEE802154Narrow
  */
-class NetworkStackTrafficGen : public BaseLayer
+class SimpleAppl : public BaseLayer
 {
 public:
 
@@ -52,6 +53,7 @@ protected:
 
 	long nbPacketDropped;
 
+	ushort localPort;
 
 	BaseArp* arp;
 	int myNetwAddr;
@@ -94,6 +96,8 @@ protected:
 
 	/** @brief Send a broadcast message to lower layer. */
 	virtual void sendBroadcast();
+
+	virtual void bindToPort(int port);
 };
 
 #endif
