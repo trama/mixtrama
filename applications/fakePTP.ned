@@ -13,25 +13,27 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 // 
 
-package test;
+package test.applications;
 
 //
 // TODO auto-generated module
 //
-simple SimpleAppl
+simple fakePTP
 {
     parameters:
         int myAddr;
         double packetTime @unit(s);
-        double packetsPerPacketTime;
         bool debug; // debug switch
-        int localPort = default(1234);
+        int localPort1 = default(819);
+        int localPort2 = default(820);
         int burstSize = default(1);
         int packetLength @unit("bit"); // length of the generated packet (in bits)
         int destination = default(-1);
     gates:
-        input lowerGateIn; // from NIC
-        output lowerGateOut; // to NIC
+        input lowerGateIn1; // from NIC
+        output lowerGateOut1; // to NIC
+        input lowerGateIn2; // from NIC
+        output lowerGateOut2; // to NIC
         input lowerControlIn; // control from NIC
         output lowerControlOut; // control to NIC
 }

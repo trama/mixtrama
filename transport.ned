@@ -9,10 +9,10 @@ simple transport
         @display("p=10,10;o=white");
 
     gates:
-        input upperGateIn[numApplLayer]; // from upper layer
-        output upperGateOut[numApplLayer]; // to uppe layer
-        input upperControlIn[numApplLayer]; // control from upper layer
-        output upperControlOut[numApplLayer]; // control to upper layer
+        input upperGateIn[]; // from upper layer
+        output upperGateOut[]; // to uppe layer
+        input upperControlIn[]; // control from upper layer
+        output upperControlOut[]; // control to upper layer
         input lowerGateIn; // gate for sendDirect
         output lowerGateOut;
         input lowerControlIn; // control from NIC

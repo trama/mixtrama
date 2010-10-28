@@ -1,5 +1,5 @@
 /* -*- mode:c++ -*- ********************************************************
- * file:        ArpHost.h
+ * file:        dummyArp.h
  *
  * author:      Jerome Rousselot
  *
@@ -18,8 +18,8 @@
  * part of:     framework implementation developed by tkn
  ***************************************************************************/
 
-#ifndef ARP_HOST_H
-#define ARP_HOST_H
+#ifndef DUMMYARP_H
+#define DUMMYARP_H
 
 #include <ArpInterface.h>
 #include <AddressingInterface.h>
@@ -38,7 +38,7 @@
  *
  * @author Jerome Rousselot
  **/
-class ArpHost : public ArpInterface,
+class dummyArp : public ArpInterface,
 				public AddressingInterface,
 				public BaseModule
 {

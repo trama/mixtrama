@@ -1,5 +1,8 @@
 package test;
 
+import test.applications.fakePTP;
+import test.interface.dummyArp;
+import test.applications.SimpleAppl;
 import org.mixim.modules.power.battery.SimpleBattery;
 import org.mixim.modules.power.battery.BatteryStats;
 import org.mixim.modules.mobility.ConstSpeedMobility;
@@ -24,10 +27,6 @@ module Node
             parameters:
                 @display("p=320,140;b=24,24,rect,black;i=block/blackboard");
         }
-        arp: ArpHost {
-            parameters:
-                @display("p=283,238;b=24,24,rect,blue");
-        }
         mobility: ConstSpeedMobility {
             parameters:
                 @display("p=257,305;i=cogwheel2");
@@ -44,12 +43,13 @@ module Node
         transport: transport {
             @display("p=69,167");
         }
+        dummyArp: dummyArp {
+            @display("p=249,211");
+        }
+        fakePTP: fakePTP {
+            @display("p=128,45");
+        }
     connections:
-        appl.lowerGateOut --> transport.upperGateIn[0];
-        appl.lowerControlOut --> transport.upperControlIn[0];
-        transport.upperControlOut[0] --> appl.lowerControlIn;
-        transport.upperGateOut[0] --> appl.lowerGateIn;
-
         radioIn --> nic.radioIn;
 
         transport.lowerControlOut --> nic.upperControlIn;
@@ -57,4 +57,14 @@ module Node
         nic.upperControlOut --> transport.lowerControlIn;
         nic.upperGateOut --> transport.lowerGateIn;
 
+        fakePTP.lowerGateOut1 --> transport.upperGateIn++;
+        transport.upperGateOut++ --> fakePTP.lowerGateIn1;
+        fakePTP.lowerGateOut2 --> transport.upperGateIn++;
+        transport.upperGateOut++ --> fakePTP.lowerGateIn2;
+        transport.upperControlOut++ --> fakePTP.lowerControlIn;
+        fakePTP.lowerControlOut --> transport.upperControlIn++;
+        appl.lowerGateOut --> transport.upperGateIn++;
+        appl.lowerControlOut --> transport.upperControlIn++;
+        transport.upperGateOut++ --> appl.lowerGateIn;
+        transport.upperControlOut++ --> appl.lowerControlIn;
 }

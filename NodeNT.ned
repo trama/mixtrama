@@ -1,6 +1,6 @@
 package test;
 
-import org.mixim.modules.application.SensorApplLayer;
+import test.applications.SimpleAppl;
 import org.mixim.modules.power.battery.SimpleBattery;
 import org.mixim.modules.power.battery.BatteryStats;
 import org.mixim.modules.netw.ArpHost;

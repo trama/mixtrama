@@ -1,5 +1,5 @@
 /* -*- mode:c++ -*- ********************************************************
- * file:        ArpHost.cc
+ * file:        dummyArp.cc
  *
  * author:      Daniel Willkomm, Jerome Rousselot
  *
@@ -18,18 +18,18 @@
  * part of:     framework implementation developed by tkn
  ***************************************************************************/
 
-#include "ArpHost.h"
+#include "dummyArp.h"
 
-Define_Module(ArpHost);
+Define_Module(dummyArp);
 
-void ArpHost::initialize(int stage) {
+void dummyArp::initialize(int stage) {
 	BaseModule::initialize(stage);
     if(stage==0) {
         hasPar("coreDebug") ? coreDebug = par("coreDebug").boolValue() : coreDebug = false;
 	}
 }
 
-int ArpHost::getMacAddr(const int netwAddr)
+int dummyArp::getMacAddr(const int netwAddr)
 {
     if(debug) {
         Enter_Method("getMacAddr(%d)",netwAddr);
@@ -46,7 +46,7 @@ int ArpHost::getMacAddr(const int netwAddr)
 //    return simulation.getModule(netwAddr)->getParentModule()->getSubmodule("nic")->getId();
 }
 
-int ArpHost::getNetwAddr(const int macAddr)
+int dummyArp::getNetwAddr(const int macAddr)
 {
     if(coreDebug) {
         Enter_Method("getNetwAddr(%d)",macAddr);
@@ -63,7 +63,7 @@ int ArpHost::getNetwAddr(const int macAddr)
 //    return simulation.getModule(macAddr)->getParentModule()->getSubmodule("netw")->getId();
 }
 
-int ArpHost::myNetwAddr(cModule* netw) {
+int dummyArp::myNetwAddr(cModule* netw) {
     // modification by Jerome Rousselot, CSEM
     // assumes that addresses are equal to host index.
     // and that mac addresses == net addresses
@@ -71,7 +71,7 @@ int ArpHost::myNetwAddr(cModule* netw) {
 //    return netw->getId();
 }
 
-int ArpHost::myMacAddr(cModule *mac)
+int dummyArp::myMacAddr(cModule *mac)
 {
     // modification by Jerome Rousselot, CSEM
 	// assumes that addresses are equal to host index.
