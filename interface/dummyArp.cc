@@ -26,6 +26,11 @@ void dummyArp::initialize(int stage) {
 	BaseModule::initialize(stage);
     if(stage==0) {
         hasPar("coreDebug") ? coreDebug = par("coreDebug").boolValue() : coreDebug = false;
+
+        myMacAddress = par("macAddress");
+
+        coreEV << "for the node "<<this->getParentModule()<<" the MAC address is "<<
+        		myMacAddress<<endl;
 	}
 }
 
@@ -39,7 +44,10 @@ int dummyArp::getMacAddr(const int netwAddr)
     // modification by Jerome Rousselot, CSEM
     // assumes that addresses are equal to host IDs
     // and that mac addresses == net addresses
-    return netwAddr;
+
+    //further mod by Federico Tramarin
+    //use the assigned a mac address
+    return myMacAddress;
 //    coreEV << "for host[" << simulation.getModule( netwAddr )->getParentModule()->getIndex()
 //       << "]: netwAddr " << netwAddr << "; MAC address "
 //       << simulation.getModule( netwAddr )->getParentModule()->getSubmodule( "nic" )->getId() <<endl;
@@ -56,7 +64,10 @@ int dummyArp::getNetwAddr(const int macAddr)
     // modification by Jerome Rousselot, CSEM
     // assumes that addresses are equal to host IDs
     // and that mac addresses == net addresses
-    return macAddr;
+
+    //further mod by Federico Tramarin
+    //use the assigned a mac address
+    return myMacAddress;
 //    coreEV << "for host[" << simulation.getModule( macAddr )->getParentModule()->getIndex()
 //       << "]: macAddr " << macAddr << "; netw address "
 //       << simulation.getModule( macAddr )->getParentModule()->getSubmodule("nic")->getId() <<endl;
@@ -67,7 +78,8 @@ int dummyArp::myNetwAddr(cModule* netw) {
     // modification by Jerome Rousselot, CSEM
     // assumes that addresses are equal to host index.
     // and that mac addresses == net addresses
-	return netw->getParentModule()->getIndex();
+	return myMacAddress;
+	//return netw->getParentModule()->getIndex();
 //    return netw->getId();
 }
 
@@ -76,6 +88,7 @@ int dummyArp::myMacAddr(cModule *mac)
     // modification by Jerome Rousselot, CSEM
 	// assumes that addresses are equal to host index.
     // and that mac addresses == net addresses
-	return mac->getParentModule()->getParentModule()->getIndex();
+	return myMacAddress;
+	//return mac->getParentModule()->getParentModule()->getIndex();
 //    return (mac->getParentModule())->getId();
 }

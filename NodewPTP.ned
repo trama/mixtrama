@@ -1,14 +1,15 @@
 package test;
 
+import test.applications.fakePTP;
+import test.interface.dummyArp;
 import test.applications.SimpleAppl;
 import org.mixim.modules.power.battery.SimpleBattery;
 import org.mixim.modules.power.battery.BatteryStats;
-import org.mixim.modules.netw.ArpHost;
 import org.mixim.modules.mobility.ConstSpeedMobility;
 import org.mixim.base.modules.BaseUtility;
 
 
-module Node
+module NodewPTP
 {
     parameters:
         int addr;
@@ -33,7 +34,7 @@ module Node
         appl: SimpleAppl {
             parameters:
                 myAddr = addr;
-                @display("p=70,41;i=app");
+                @display("p=47,42;i=app");
         }
         nic: Nic802154_TI_CC2420 {
             parameters:
@@ -42,8 +43,11 @@ module Node
         transport: transport {
             @display("p=69,167");
         }
-        arp: ArpHost {
+        dummyArp: dummyArp {
             @display("p=249,211");
+        }
+        fakePTP: fakePTP {
+            @display("p=128,45");
         }
     connections:
         radioIn --> nic.radioIn;
@@ -53,6 +57,12 @@ module Node
         nic.upperControlOut --> transport.lowerControlIn;
         nic.upperGateOut --> transport.lowerGateIn;
 
+        fakePTP.lowerGateOut1 --> transport.upperGateIn++;
+        transport.upperGateOut++ --> fakePTP.lowerGateIn1;
+        fakePTP.lowerGateOut2 --> transport.upperGateIn++;
+        transport.upperGateOut++ --> fakePTP.lowerGateIn2;
+        transport.upperControlOut++ --> fakePTP.lowerControlIn;
+        fakePTP.lowerControlOut --> transport.upperControlIn++;
         appl.lowerGateOut --> transport.upperGateIn++;
         appl.lowerControlOut --> transport.upperControlIn++;
         transport.upperGateOut++ --> appl.lowerGateIn;

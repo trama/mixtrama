@@ -6,6 +6,7 @@ import org.mixim.base.modules.BaseArp;
 simple dummyArp extends BaseArp
 {
     parameters:
+        int macAddress;
         @class(dummyArp);
 }
 
