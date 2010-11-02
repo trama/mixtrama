@@ -44,7 +44,7 @@ class dummyArp : public ArpInterface,
 {
     //Module_Class_Members(BaseArp,BaseModule,0);
 	bool coreDebug;
-	ushort myMacAddress;
+	int myMacAddress;
 
 public:
 	virtual void initialize(int stage);

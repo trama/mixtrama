@@ -53,7 +53,7 @@ protected:
 
 	long nbPacketDropped;
 
-	ushort localPort;
+	int localPort;
 
 	BaseArp* arp;
 	int myNetwAddr;
@@ -97,7 +97,7 @@ protected:
 	/** @brief Send a broadcast message to lower layer. */
 	virtual void sendBroadcast();
 
-	virtual void bindToPort(int port);
+	virtual void bindToPort(int port, bool);
 };
 
 #endif

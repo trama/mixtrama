@@ -10,14 +10,35 @@
 #include "NetwPkt_m.h"
 #include "NetwToMacControlInfo.h"
 
-	enum TrafficGenMessageKinds{
+enum TrafficGenMessageKinds{
 
-		SEND_BROADCAST_TIMER = 1,
-		BROADCAST_MESSAGE
-	};
+	SEND_BROADCAST_TIMER = 1,
+	BROADCAST_MESSAGE
+};
 
+static std::ostream & operator<<(std::ostream & os, const transport::sck& sd)
+{
+	os << "sockId=" << sd.sockId;
+	os << " appGateIndex=" << sd.appGateIndex;
+	os << " localPort=" << sd.localPort1;
+	return os;
+}
 
 Define_Module(transport);
+
+//void UDPAppBase::bindToPort(int port)
+//{
+//    EV << "Binding to UDP port " << port << endl;
+//
+//    // TODO UDPAppBase should be ported to use UDPSocket sometime, but for now
+//    // we just manage the UDP socket by hand...
+//    cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
+//    UDPControlInfo *ctrl = new UDPControlInfo();
+//    ctrl->setSrcPort(port);
+//    ctrl->setSockId(getId());
+//    msg->setControlInfo(ctrl);
+//    send(msg, "udpOut");
+//}
 
 void transport::initialize(int stage){
 	BaseLayer::initialize(stage);
@@ -50,8 +71,56 @@ void transport::initialize(int stage){
 					(isGateVector("upperGateIn") ? gateSize("upperGateIn") : -20 )<<endl;
 
 	        nbPacketDropped = 0;
-
 		}
+}
+
+void transport::bind(int gateIndex, transpCInfo *ctrl)
+{
+    // create and fill in description of a socket
+	// tha app layer send a bind packet with its ID and the port number
+	// it uses. For each port a ctrl message is sent, so we have to check
+	// if we already created an entry in the socket map. TO BE CORRECTED
+    sck *sd = new sck();
+    sd->sockId = ctrl->getSockId();
+    sd->appGateIndex = gateIndex;
+    sd->isControlPort = ctrl->getIsControlPort();
+    sd->localPort1 = ctrl->getSrcPort();
+
+    if (sd->sockId==-1)
+        error("sockId in BIND message not filled in");
+    if (sd->localPort1==0)
+        error("Local port could not be 0"); //sd->localPort = getEphemeralPort();
+
+    EV << "Binding socket: " << *sd << "\n";
+
+    // add to socketsByIdMap
+    //ASSERT(scksID.find(sd->sockId)==scksID.end());
+    std::map<int,sck*>::iterator it = scksID.find(sd->sockId);
+    if(it==scksID.end() && !sd->isControlPort){
+    	scksID[sd->sockId] = sd;
+    	EV << "Added socket to map.\n";
+    }else{
+    	if(sd->isControlPort){
+    		if(it->second->isControlPort){
+    			it->second->controlPort2 = sd->localPort1;
+    			EV << "Added second control port to socket\n";
+    		} else {
+    			it->second->controlPort1 = sd->localPort1;
+    			EV << "Added first control port to socket\n";
+    		}
+    	} else {
+    		it->second->localPort2=sd->localPort1;
+    		EV << "Added second message port to socket\n";
+    	}
+
+    }
+
+    //first time sck is created it is added to map. Any other time the same module tries to bind to this
+    //one, other infos are added to the same map entry.
+
+    // add to socketsByPortMap
+    //SockDescList& list = socketsByPortMap[sd->localPort]; // create if doesn't exist
+    //list.push_back(sd);
 }
 
 void transport::handleMessage(cMessage* msg)
@@ -64,10 +133,12 @@ void transport::handleMessage(cMessage* msg)
     } else if(msg->getArrivalGateId()==lowerGateIn) {
         recordPacket(PassedMessage::INCOMING,PassedMessage::LOWER_DATA,msg);
         handleLowerMsg(msg);
-    } else if(msg->getArrivalGateId()==upperGateIn) {
+    } else if(msg->arrivedOn("upperGateIn")) {
+    //else if(msg->getArrivalGateId()==upperGateIn) {
         recordPacket(PassedMessage::INCOMING,PassedMessage::UPPER_DATA,msg);
         handleUpperMsg(msg);
-    } else if(msg->getArrivalGateId()==upperControlIn) {
+    } else if(msg->arrivedOn("upperControlIn")) {
+        //else if(msg->getArrivalGateId()==upperControlIn) {
         recordPacket(PassedMessage::INCOMING,PassedMessage::UPPER_CONTROL,msg);
         handleUpperControl(msg);
     } else if(msg->getArrivalGateId()==-1) {
@@ -98,56 +169,16 @@ transport::~transport(){
 
 }
 
-//void UDPAppBase::bindToPort(int port)
-//{
-//    EV << "Binding to UDP port " << port << endl;
-//
-//    // TODO UDPAppBase should be ported to use UDPSocket sometime, but for now
-//    // we just manage the UDP socket by hand...
-//    cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
-//    UDPControlInfo *ctrl = new UDPControlInfo();
-//    ctrl->setSrcPort(port);
-//    ctrl->setSockId(getId());
-//    msg->setControlInfo(ctrl);
-//    send(msg, "udpOut");
-//}
-static std::ostream & operator<<(std::ostream & os, const transport::sck& sd)
-{
-    os << "sockId=" << sd.sockId;
-    os << " appGateIndex=" << sd.appGateIndex;
-    os << " localPort=" << sd.localPort;
-    return os;
-}
-
-void transport::bind(int gateIndex, transpCInfo *ctrl)
-{
-
-    // create and fill in description of a socket
-    sck *sd = new sck();
-    sd->sockId = ctrl->getSockId();
-    sd->appGateIndex = gateIndex;
-    sd->localPort = ctrl->getSrcPort();
-
-    if (sd->sockId==-1)
-        error("sockId in BIND message not filled in");
-    if (sd->localPort==0)
-        error("Local port could not be 0"); //sd->localPort = getEphemeralPort();
-
-    EV << "Binding socket: " << *sd << "\n";
-
-    // add to socketsByIdMap
-    ASSERT(scksID.find(sd->sockId)==scksID.end());
-    scksID[sd->sockId] = sd;
-
-    // add to socketsByPortMap
-    //SockDescList& list = socketsByPortMap[sd->localPort]; // create if doesn't exist
-    //list.push_back(sd);
-}
-
-
 void transport::handleSelfMsg(cMessage* msg){}
 
 void transport::handleUpperMsg(cMessage *msg){
+
+	if(msg->getKind() == UDP_C_BIND){
+			transpCInfo *ctrl = check_and_cast<transpCInfo *>(msg->removeControlInfo());
+			bind(msg->getArrivalGate()->getIndex(), ctrl);
+		    delete ctrl;
+		    delete msg;
+		}
 
 	transpCInfo *ctrl = check_and_cast<transpCInfo *>(msg->removeControlInfo());
 

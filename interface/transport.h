@@ -22,9 +22,13 @@ public:
 
     struct sck //socket definition
     {
-        int sockId; // supposed to be unique across apps
+        int sockId; // supposed to be unique across apps-- module ID
         int appGateIndex;
-        ushort localPort;
+        int localPort1;
+        bool isControlPort;
+        int localPort2;
+        int controlPort1;
+        int controlPort2;
     };
 
     typedef std::list<sck *> sckl; // list of sockets

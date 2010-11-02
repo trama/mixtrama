@@ -11,8 +11,8 @@ class transpCInfo
 {
     int sockId = -1;   // uniquely identifies the \UDP socket
     int srcPort;   // \UDP source port in packet, or local port with BIND
-    int destPort;
     int destination;
     int source;
+    bool isControlPort;
 }
 

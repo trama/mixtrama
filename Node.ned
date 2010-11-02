@@ -1,9 +1,9 @@
 package test;
 
+import test.interface.dummyArp;
 import test.applications.SimpleAppl;
 import org.mixim.modules.power.battery.SimpleBattery;
 import org.mixim.modules.power.battery.BatteryStats;
-import org.mixim.modules.netw.ArpHost;
 import org.mixim.modules.mobility.ConstSpeedMobility;
 import org.mixim.base.modules.BaseUtility;
 
@@ -42,7 +42,7 @@ module Node
         transport: transport {
             @display("p=69,167");
         }
-        arp: ArpHost {
+        arp: dummyArp {
             @display("p=249,211");
         }
     connections:

@@ -71,17 +71,18 @@ void SimpleAppl::initialize(int stage)
 //    if (destAddresses.empty())
 //        return;
 //
-      bindToPort(localPort);
+      bindToPort(localPort,false);
     }
 }
 
-void SimpleAppl::bindToPort(int port)
+void SimpleAppl::bindToPort(int port,bool isControlPort)
 {
     EV << "Binding to transport  port " << port << endl;
 
     cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
     transpCInfo *ctrl = new transpCInfo();
     ctrl->setSrcPort(port);
+    ctrl->setIsControlPort(isControlPort);
     ctrl->setSockId(getId());
     msg->setControlInfo(ctrl);
     send(msg, "lowerControlOut");
@@ -151,7 +152,7 @@ void SimpleAppl::sendBroadcast()
 	ctrl->setSockId(getId());
 	ctrl->setSrcPort(localPort);
 	ctrl->setDestination(destination);
-	ctrl->setDestPort(localPort);
+	//ctrl->setDestPort(localPort);
 	ctrl->setSource(myNetwAddr);
 
     NetwPkt *pkt = new NetwPkt("BROADCAST_MESSAGE", BROADCAST_MESSAGE);

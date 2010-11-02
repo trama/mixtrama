@@ -1,7 +1,7 @@
 package test;
 
-import test.applications.fakePTP;
 import test.interface.dummyArp;
+import test.applications.fakePTP;
 import test.applications.SimpleAppl;
 import org.mixim.modules.power.battery.SimpleBattery;
 import org.mixim.modules.power.battery.BatteryStats;
@@ -43,7 +43,7 @@ module NodewPTP
         transport: transport {
             @display("p=69,167");
         }
-        dummyArp: dummyArp {
+        arp: dummyArp {
             @display("p=249,211");
         }
         fakePTP: fakePTP {

@@ -52,9 +52,9 @@ protected:
 
 	long nbPacketDropped;
 
-	ushort localPort1;
-	ushort localPort2;
-	ushort currlocalPort;
+	int localPort1;
+	int localPort2;
+	int currlocalPort;
 
 	BaseArp* arp;
 	int myNetwAddr;

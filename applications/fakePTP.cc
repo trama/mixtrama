@@ -146,7 +146,7 @@ void fakePTP::sendBroadcast()
 	ctrl->setSockId(getId());
 	ctrl->setSrcPort(currlocalPort);
 	ctrl->setDestination(destination);
-	ctrl->setDestPort(currlocalPort);
+	//ctrl->setDestPort(currlocalPort);
 	ctrl->setSource(myNetwAddr);
 
     NetwPkt *pkt = new NetwPkt("BROADCAST_MESSAGE", BROADCAST_MESSAGE);
