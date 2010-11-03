@@ -11,7 +11,7 @@ import org.mixim.base.modules.BaseArp;
 module Host
 {
     parameters:
-        @display("p=10,10;b=250,250,rect;o=white");
+        @display("p=10,10;o=white");
 
     gates:
         input radioIn; // gate for sendDirect

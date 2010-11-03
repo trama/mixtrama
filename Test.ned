@@ -1,8 +1,8 @@
 package test;
 
-import org.mixim.examples.Mac80211.Host;
-import org.mixim.base.connectionManager.ConnectionManager;
 import org.mixim.base.modules.BaseWorldUtility;
+import org.mixim.base.connectionManager.ConnectionManager;
+
 
 network Test
 {
@@ -26,7 +26,7 @@ network Test
                 playgroundSizeZ = playgroundSizeZ;
                 @display("p=70,39;i=misc/globe");
         }
-        node[numSlaves]: Node {
+        node[numSlaves]: NodewPTP {
             parameters:
                 addr = index;
                 @display("p=147,191;i=device/wifilaptop");
