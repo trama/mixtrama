@@ -48,7 +48,8 @@ void fakePTP::initialize(int stage)
     } else if (stage == 1){
         if (burstSize > 0) {
             remainingBurst = burstSize;
-            scheduleAt(100, delayTimer);//dblrand() * packetTime * burstSize / pppt, delayTimer);
+            scheduleAt(70, delayTimer);//dblrand() * packetTime * burstSize / pppt, delayTimer);
+
         }
 //    if (stage!=3)
 //        return;
@@ -88,7 +89,7 @@ void fakePTP::bindToPort(int port)
     cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
     transpCInfo *ctrl = new transpCInfo();
     ctrl->setSrcPort(port);
-    ctrl->setSockId(getId());
+    //ctrl->setSockId(getId());
     msg->setControlInfo(ctrl);
     send(msg, "lowerControlOut");
 }
@@ -143,7 +144,7 @@ void fakePTP::sendBroadcast()
 {
 
 	transpCInfo *ctrl = new transpCInfo();
-	ctrl->setSockId(getId());
+	//ctrl->setSockId(getId());
 	ctrl->setSrcPort(currlocalPort);
 	ctrl->setDestination(destination);
 	//ctrl->setDestPort(currlocalPort);

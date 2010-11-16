@@ -1,8 +1,8 @@
 package test;
 
-import org.mixim.examples.Mac80211.Host;
-import org.mixim.base.connectionManager.ConnectionManager;
 import org.mixim.base.modules.BaseWorldUtility;
+import org.mixim.base.connectionManager.ConnectionManager;
+
 
 network Test
 {

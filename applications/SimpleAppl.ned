@@ -26,6 +26,7 @@ simple SimpleAppl
         double packetsPerPacketTime;
         bool debug; // debug switch
         int localPort = default(1234);
+        int localCPort = default(4321);
         int burstSize = default(1);
         int packetLength @unit("bit"); // length of the generated packet (in bits)
         int destination = default(-1);

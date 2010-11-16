@@ -16,7 +16,7 @@
 #ifndef NETWORKSTACKTRAFFICGEN_H_
 #define NETWORKSTACKTRAFFICGEN_H_
 
-#include "NetwPkt_m.h"
+#include "NetPkt_m.h"
 #include "transpCInfo_m.h"
 #include "SimpleAddress.h"
 #include "BaseLayer.h"
@@ -53,7 +53,7 @@ protected:
 
 	long nbPacketDropped;
 
-	int localPort;
+	int localPort, localCPort;
 
 	BaseArp* arp;
 	int myNetwAddr;
