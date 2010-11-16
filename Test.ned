@@ -26,7 +26,7 @@ network Test
                 playgroundSizeZ = playgroundSizeZ;
                 @display("p=70,39;i=misc/globe");
         }
-        node[numSlaves]: Node {
+        node[numSlaves]: NodewPTP {
             parameters:
                 addr = index;
                 @display("p=147,191;i=device/wifilaptop");

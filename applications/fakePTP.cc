@@ -48,7 +48,7 @@ void fakePTP::initialize(int stage)
     } else if (stage == 1){
         if (burstSize > 0) {
             remainingBurst = burstSize;
-            scheduleAt(0.5, delayTimer);//dblrand() * packetTime * burstSize / pppt, delayTimer);
+            scheduleAt(100, delayTimer);//dblrand() * packetTime * burstSize / pppt, delayTimer);
         }
 //    if (stage!=3)
 //        return;
