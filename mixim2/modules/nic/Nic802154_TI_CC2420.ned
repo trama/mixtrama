@@ -20,11 +20,10 @@
 // * (WASP) under contract IST-034963.
 // **************************************************************************/
 
-package test;
+package mixtrama.mixim2.modules.nic;
 
-import org.mixim.modules.phy.PhyLayerBattery;
-import org.mixim.modules.nic.INic;
-import org.mixim.modules.mac.CSMA802154;
+import mixtrama.mixim2.modules.phy.PhyLayerBattery;
+import mixtrama.mixim2.modules.mac.CSMA802154;
 
 
 //
@@ -38,6 +37,7 @@ import org.mixim.modules.mac.CSMA802154;
 module Nic802154_TI_CC2420 like INic
 {
     parameters:
+        string connectionManagerName = default("");   //name of the ConnectionManager module
         // power consumption from boards (at 3.3V)
         double sleepCurrent @unit(mA) = 0.000021mA; // 0.021 µA
         double rxCurrent @unit(mA) = 18.8 mA;
@@ -47,8 +47,7 @@ module Nic802154_TI_CC2420 like INic
         double setupTxCurrent @unit(mA) = 0.6845mA; // 0.002259 W = (ESetupPower+ESetupXtal+ERxCalibrate)/TSetupRx
         double rxTxCurrent @unit(mA) = 18.8 mA; // Upper bound
         double txRxCurrent @unit(mA) = 18.8 mA; // idem
-		string connectionManagerName; 	//name of the ConnectionManager module
-		
+
     gates:
         input upperGateIn; // from upper layers
         input radioIn; // to receive AirFrames
@@ -59,7 +58,7 @@ module Nic802154_TI_CC2420 like INic
     submodules:
         phy: PhyLayerBattery {
             parameters:
-                decider = xmldoc("Nic802154_TI_CC2420_Decider.xml");
+                decider = xmldoc("./mixim2/modules/nic/Nic802154_TI_CC2420_Decider.xml");
                 //publishRSSIAlways = false;
                 headerLength = 48 bit; // ieee 802.15.4                
                 thermalNoise = -110 dBm;

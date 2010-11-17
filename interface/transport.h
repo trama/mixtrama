@@ -42,7 +42,7 @@ protected:
 	    virtual void handleLowerControl(cMessage *msg);
 	    virtual void handleUpperControl(cMessage *msg);
 
-	    bool debug;
+	    //bool debug;
 	    int nbPacketDropped;
 	    int numApplLayer;
 	    simtime_t elab_time;

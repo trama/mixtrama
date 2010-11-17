@@ -1,6 +1,7 @@
-package test.interface;
+package mixtrama.interface;
 
-import org.mixim.base.modules.BaseArp;
+import mixtrama.mixim2.base.modules.BaseArp;
+
 
 // Module which is responsible for Addressresolution
 simple dummyArp extends BaseArp

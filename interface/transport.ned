@@ -1,10 +1,10 @@
-package test;
+package mixtrama.interface;
 
 simple transport
 {
     parameters:
         int numApplLayer = default(1);
-        bool debug;
+        bool debug = default(false);
         double elaborationTime @unit(s) = default(0us);
         @display("p=10,10;o=white");
 

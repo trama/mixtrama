@@ -9,6 +9,7 @@
 #include <BaseMacLayer.h>
 #include "NetPkt_m.h"
 #include "NetwToMacControlInfo.h"
+#include "tutils.h"
 
 enum TrafficGenMessageKinds{
 
@@ -28,7 +29,7 @@ Define_Module(transport);
 
 //void UDPAppBase::bindToPort(int port)
 //{
-//    EV << "Binding to UDP port " << port << endl;
+//    EVT << "Binding to UDP port " << port << endl;
 //
 //    // TODO UDPAppBase should be ported to use UDPSocket sometime, but for now
 //    // we just manage the UDP socket by hand...
@@ -47,7 +48,7 @@ void transport::initialize(int stage){
 			//debug = par("debug").boolValue();
 			elab_time = par("elaborationTime").doubleValue();
 
-			EV << "Transport elab_time "<<elab_time<<endl;
+			EVT << "Transport elab_time "<<elab_time<<endl;
 			//for now, only one app layer supported
 
 	        upperGateIn  = gateBaseId("upperGateIn");
@@ -57,7 +58,7 @@ void transport::initialize(int stage){
 	        //this are the base address gate, i.e. the ones associated to gate 0
 	        //one can obtain the other gate with baseaddr + index
 
-			EV << "the gates present in this modules are:\nHigher ports\n"<<
+			EVT << "the gates present in this modules are:\nHigher ports\n"<<
 			upperGateIn<<" "<<
 			upperGateOut <<" "<<
 	        upperControlIn<<" "<<
@@ -67,7 +68,7 @@ void transport::initialize(int stage){
 	        lowerControlIn  <<" "<<
 	        lowerControlOut <<endl;
 
-			EV << "The gates upperGateIn/Out and ControlIn/Out are vector gates with size"<<
+			EVT << "The gates upperGateIn/Out and ControlIn/Out are vector gates with size"<<
 					(isGateVector("upperGateIn") ? gateSize("upperGateIn") : -20 )<<endl;
 
 	        nbPacketDropped = 0;
@@ -91,31 +92,31 @@ void transport::bind(int gateIndex, transpCInfo *ctrl)
     //if (sd->localPort1==0)
       //  error("Local port could not be 0"); //sd->localPort = getEphemeralPort();
 
-    EV << "Binding socket: " << *sd << "\n";
+    EVT << "Binding socket: " << *sd << "\n";
 
     // add to socketsByIdMap
     ASSERT(scksID.find(sd->localPort)==scksID.end());
     scksID[sd->localPort] = sd;
-    EV << "Added socket to map.\n";
+    EVT << "Added socket to map.\n";
 
 
 /*    std::map<int,sck*>::iterator it = scksID.find(sd->localPort);
 
     if(it==scksID.end() && !sd->isControlPort){
     	scksID[sd->localPort] = sd;
-    	EV << "Added socket to map.\n";
+    	EVT << "Added socket to map.\n";
     }else{
     	if(sd->isControlPort){
     		if(it->second->isControlPort){
     			it->second->controlPort2 = sd->localPort1;
-    			EV << "Added second control port to socket\n";
+    			EVT << "Added second control port to socket\n";
     		} else {
     			it->second->controlPort1 = sd->localPort1;
-    			EV << "Added first control port to socket\n";
+    			EVT << "Added first control port to socket\n";
     		}
     	} else {
     		it->second->localPort2=sd->localPort1;
-    		EV << "Added second message port to socket\n";
+    		EVT << "Added second message port to socket\n";
     	}
 
     }*/
@@ -177,14 +178,14 @@ transport::~transport(){
 void transport::handleSelfMsg(cMessage* msg){}
 
 void transport::handleLowerMsg(cMessage *msg){
-	EV<<"Received packet from down -- Analyzing!\n";//\nSending packet up\n";
+	EVT<<"Received packet from down -- Analyzing!\n";//\nSending packet up\n";
 
 	NetPkt *net = check_and_cast<NetPkt *>(msg);
 
 	int srcPort = net->getSrcPort();
 	std::map<int,sck*>::iterator it = scksID.find(srcPort);
 	int gateIdx = it->second->appGateIndex;
-	EV << "Message is for port " << srcPort << "which correspond to ID "<< upperGateOut + gateIdx <<endl;
+	EVT << "Message is for port " << srcPort << "which correspond to ID "<< upperGateOut + gateIdx <<endl;
 
 	sendDelayed(msg,elab_time,upperGateOut + gateIdx);
 }
@@ -199,7 +200,7 @@ void transport::handleLowerControl(cMessage *msg){
     }
     else
     {
-    	EV<<"Received control from down\nSending control up\n";
+    	EVT<<"Received control from down\nSending control up\n";
     	sendControlUp(msg);
     }
 }
@@ -226,7 +227,7 @@ void transport::handleUpperMsg(cMessage *msg){
     // necessario per il mac perché si prende la destinazione da qui!
     pkt->setControlInfo(new NetwToMacControlInfo(ctrl->getDestination()));
 
-	EV<<"Received packet from up -- port "<< ctrl->getSrcPort()<<"\nSending packet down\n";
+	EVT<<"Received packet from up -- port "<< ctrl->getSrcPort()<<"\nSending packet down\n";
 	sendDelayed(pkt,elab_time,lowerGateOut);
 	}
 }
@@ -238,7 +239,7 @@ void transport::handleUpperControl(cMessage *msg){
 	    delete ctrl;
 	    delete msg;
 	}else{
-	EV<<"Received control from up\nSending control down\n";
+	EVT<<"Received control from up\nSending control down\n";
 	sendControlDown(msg);
 	}
 }

@@ -1,11 +1,12 @@
-package test;
+package mixtrama;
 
-import test.applications.SimpleAppl;
-import org.mixim.modules.power.battery.SimpleBattery;
-import org.mixim.modules.power.battery.BatteryStats;
-import org.mixim.modules.netw.ArpHost;
-import org.mixim.modules.mobility.ConstSpeedMobility;
-import org.mixim.base.modules.BaseUtility;
+import mixtrama.mixim2.modules.power.battery.SimpleBattery;
+import mixtrama.mixim2.modules.power.battery.BatteryStats;
+import mixtrama.mixim2.modules.nic.Nic802154_TI_CC2420;
+import mixtrama.mixim2.modules.netw.ArpHost;
+import mixtrama.mixim2.modules.mobility.ConstSpeedMobility;
+import mixtrama.mixim2.base.modules.BaseUtility;
+import mixtrama.applications.SimpleAppl;
 
 
 module NodeNT

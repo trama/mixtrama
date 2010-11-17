@@ -1,10 +1,10 @@
-package test;
+package mixtrama;
 
-import org.mixim.base.modules.BaseWorldUtility;
-import org.mixim.base.connectionManager.ConnectionManager;
+import mixtrama.mixim2.base.modules.BaseWorldUtility;
+import mixtrama.mixim2.base.connectionManager.ConnectionManager;
 
 
-network Test
+network mixtrama
 {
     parameters:
         double playgroundSizeX @unit(m); // x size of the area the nodes are in (in meters)

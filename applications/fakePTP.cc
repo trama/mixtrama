@@ -18,7 +18,7 @@
 #include <cassert>
 #include <Packet.h>
 #include <BaseMacLayer.h>
-
+#include "tutils.h"
 
 Define_Module(fakePTP);
 
@@ -84,7 +84,7 @@ void fakePTP::initialize(int stage)
 
 void fakePTP::bindToPort(int port)
 {
-    EV << "Binding to transport  port " << port << endl;
+    EVT << "Binding to transport  port " << port << endl;
 
     cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
     transpCInfo *ctrl = new transpCInfo();
@@ -117,7 +117,7 @@ void fakePTP::handleSelfMsg(cMessage * msg)
 
         break;
     default:
-        EV << "Unkown selfmessage! -> delete, kind: " << msg->getKind() << endl;
+        EVT << "Unkown selfmessage! -> delete, kind: " << msg->getKind() << endl;
         delete msg;
     }
 }

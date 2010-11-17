@@ -1,3 +1,6 @@
 <buildspec version="4.0">
-<dir makemake-options="--deep -O out --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs" path="." type="makemake"/>
+<dir makemake-options="--deep -O out -lmixim2base -lmixim2modules --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs" path="." type="makemake"/>
+<dir makemake-options="--nolink -O out --meta:recurse --meta:auto-include-path --meta:export-library --meta:use-exported-libs" path="mixim2" type="makemake"/>
+<dir makemake-options="--deep --make-so -o mixim2modules -O out -lmixim2base --meta:auto-include-path --meta:export-library --meta:use-exported-libs" path="mixim2/modules" type="makemake"/>
+<dir makemake-options="--deep --make-so -o mixim2base -O out --meta:export-library --meta:use-exported-libs" path="mixim2/base" type="makemake"/>
 </buildspec>

@@ -13,7 +13,7 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#ifndef FAKEPTP_H_
+#ifndef FAKEPTP_H
 #define FAKEPTP_H
 
 #include "NetwPkt_m.h"

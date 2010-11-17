@@ -1,12 +1,12 @@
-package test;
+package mixtrama;
 
-import org.mixim.modules.mobility.ConstSpeedMobility;
-import org.mixim.base.modules.BaseUtility;
+import mixtrama.mixim2.modules.nic.Nic80211;
+import mixtrama.mixim2.modules.mobility.ConstSpeedMobility;
+import mixtrama.mixim2.modules.application.BurstApplLayer;
+import mixtrama.mixim2.base.modules.BaseUtility;
+import mixtrama.mixim2.base.modules.BaseNetwLayer;
+import mixtrama.mixim2.base.modules.BaseArp;
 
-import org.mixim.modules.application.BurstApplLayer;
-import org.mixim.base.modules.BaseNetwLayer;
-import org.mixim.modules.nic.Nic80211;
-import org.mixim.base.modules.BaseArp;
 
 module Host
 {
