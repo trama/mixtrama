@@ -27,20 +27,6 @@ static std::ostream & operator<<(std::ostream & os, const transport::sck& sd)
 
 Define_Module(transport);
 
-//void UDPAppBase::bindToPort(int port)
-//{
-//    EVT << "Binding to UDP port " << port << endl;
-//
-//    // TODO UDPAppBase should be ported to use UDPSocket sometime, but for now
-//    // we just manage the UDP socket by hand...
-//    cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
-//    UDPControlInfo *ctrl = new UDPControlInfo();
-//    ctrl->setSrcPort(port);
-//    ctrl->setSockId(getId());
-//    msg->setControlInfo(ctrl);
-//    send(msg, "udpOut");
-//}
-
 void transport::initialize(int stage){
 	BaseLayer::initialize(stage);
 		if(stage == 0) {

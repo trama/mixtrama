@@ -542,7 +542,7 @@ AirFrame *BasePhyLayer::encapsMsg(cPacket *macPkt)
 
 	// --- from here on, the AirFrame is the owner of the MacPacket ---
 	macPkt = 0;
-	EV <<"AirFrame encapsulated, length: " << frame->getBitLength() << "\n";
+	coreEV <<"AirFrame encapsulated, length: " << frame->getBitLength() << "\n";
 
 	return frame;
 }
@@ -806,7 +806,7 @@ void BasePhyLayer::cancelScheduledMessage(cMessage* msg) {
 	if(msg->isScheduled()){
 		cancelEvent(msg);
 	} else {
-		EV << "Warning: Decider wanted to cancel a scheduled message but message"
+		coreEV << "Warning: Decider wanted to cancel a scheduled message but message"
 		   << " wasn't actually scheduled. Message is: " << msg << endl;
 	}
 }

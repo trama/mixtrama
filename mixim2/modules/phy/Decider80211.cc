@@ -9,6 +9,9 @@
 #include <DeciderResult80211.h>
 #include <Mac80211Pkt_m.h>
 
+#define EVT (ev.isDisabled()||!debug) ? ev : ev << "host80211 :: Decider80211: "
+
+
 simtime_t Decider80211::processNewSignal(AirFrame* frame) {
 	if(currentSignal.first != 0) {
 		debugEV << "Already receiving another AirFrame!" << endl;
@@ -82,7 +85,7 @@ DeciderResult* Decider80211::checkIfSignalOk(Mapping* snrMap, AirFrame* frame)
 
 	double snirMin = MappingUtils::findMin(*snrMap, min, max);
 
-	EV << " snrMin: " << snirMin << endl;
+	EVT << " snrMin: " << snirMin << endl;
 
 	ConstMappingIterator* bitrateIt = s.getBitrate()->createConstIterator();
 	bitrateIt->next(); //iterate to payload bitrate indicator
@@ -95,11 +98,11 @@ DeciderResult* Decider80211::checkIfSignalOk(Mapping* snrMap, AirFrame* frame)
 		if(packetOk(snirMin, frame->getBitLength() - (int)PHY_HEADER_LENGTH, payloadBitrate)) {
 			result = new DeciderResult80211(true, payloadBitrate, snirMin);
 		} else {
-			EV << "Packet has BIT ERRORS! It is lost!\n";
+			EVT << "Packet has BIT ERRORS! It is lost!\n";
 			result = new DeciderResult80211(false, payloadBitrate, snirMin);
 		}
 	} else {
-		EV << "Packet has ERRORS! It is lost!\n";
+		EVT << "Packet has ERRORS! It is lost!\n";
 		result = new DeciderResult80211(false, payloadBitrate, snirMin);
 	}
 
@@ -128,7 +131,7 @@ bool Decider80211::packetOk(double snirMin, int lengthMPDU, double bitrate)
 
     //probability of no bit error in the MPDU
     double MpduNoError = pow(1.0 - berMPDU, lengthMPDU);
-    EV << "berHeader: " << berHeader << " berMPDU: " << berMPDU << endl;
+    EVT << "berHeader: " << berHeader << " berMPDU: " << berMPDU << endl;
     double rand = dblrand();
 
     //if error in header
@@ -161,12 +164,12 @@ simtime_t Decider80211::processSignalEnd(AirFrame* frame)
 	// i.e. the Decider has received it correctly
 	if (result->isSignalCorrect())
 	{
-		EV << "packet was received correctly, it is now handed to upper layer...\n";
+		EVT << "packet was received correctly, it is now handed to upper layer...\n";
 		// go on with processing this AirFrame, send it to the Mac-Layer
 		phy->sendUp(frame, result);
 	} else
 	{
-		EV << "packet was not received correctly, sending it as control message to upper layer\n";
+		EVT << "packet was not received correctly, sending it as control message to upper layer\n";
 		Mac80211Pkt* mac = static_cast<Mac80211Pkt*>(frame->decapsulate());
 		mac->setName("ERROR");
 		mac->setKind(BITERROR);

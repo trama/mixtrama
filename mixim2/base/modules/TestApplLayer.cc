@@ -23,7 +23,7 @@
 #include "NetwControlInfo.h"
 
 #include <SimpleAddress.h>
-
+#include "tutils.h"
 
 /**
  * First we have to initialize the module from which we derived ours,
@@ -58,16 +58,16 @@ void TestApplLayer::handleLowerMsg( cMessage* msg )
     switch( msg->getKind() ){
     case BROADCAST_MESSAGE:
         m = static_cast<ApplPkt *>(msg);
-	EV << "Received a broadcast packet from host["<<m->getSrcAddr()<<"] -> sending reply\n";
+	EVT << "Received a broadcast packet from host["<<m->getSrcAddr()<<"] -> sending reply\n";
         sendReply(m);
         break;
     case BROADCAST_REPLY_MESSAGE:
         m = static_cast<ApplPkt *>(msg);
-	EV << "Received reply from host["<<m->getSrcAddr()<<"]; delete msg\n";
+	EVT << "Received reply from host["<<m->getSrcAddr()<<"]; delete msg\n";
         delete msg;
 	break;
     default:
-	EV <<"Error! got packet with unknown kind: " << msg->getKind()<<endl;
+	EVT <<"Error! got packet with unknown kind: " << msg->getKind()<<endl;
         delete msg;
     }
 }
@@ -88,7 +88,7 @@ void TestApplLayer::handleSelfMsg(cMessage *msg) {
 		delayTimer = NULL;
 	break;
     default:
-    	EV << "Unknown selfmessage! -> delete, kind: "<<msg->getKind() <<endl;
+    	EVT << "Unknown selfmessage! -> delete, kind: "<<msg->getKind() <<endl;
 	delete msg;
     }
 }
@@ -109,7 +109,7 @@ void TestApplLayer::sendBroadcast()
     // address;
     pkt->setControlInfo( new NetwControlInfo(L3BROADCAST) );
 
-    EV << "Sending broadcast packet!\n";
+    EVT << "Sending broadcast packet!\n";
     sendDown( pkt );
 }
 
@@ -125,7 +125,7 @@ void TestApplLayer::sendReply(ApplPkt *msg)
     msg->setName("BROADCAST_REPLY_MESSAGE");
     sendDelayedDown(msg, delay);
 
-    EV << "sent message with delay " << delay << endl;
+    EVT << "sent message with delay " << delay << endl;
 
     //NOTE: the NetwControl info was already ste by the network layer
     //and stays the same

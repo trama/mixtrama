@@ -28,6 +28,8 @@
 
 #include <cassert>
 
+#include "tutils.h"
+
 Define_Module(BaseNetwLayer);
 
 void BaseNetwLayer::initialize(int stage)
@@ -46,7 +48,7 @@ void BaseNetwLayer::initialize(int stage)
         } else {
         	myNetwAddr = getId();
         }
-        EV << " myNetwAddr " << myNetwAddr << endl;
+        EVT << " myNetwAddr " << myNetwAddr << endl;
     }
 }
 
@@ -71,7 +73,7 @@ NetwPkt* BaseNetwLayer::encapsMsg(cPacket *appPkt) {
     int macAddr;
     int netwAddr;
 
-    EV <<"in encaps...\n";
+    EVT <<"in encaps...\n";
 
     NetwPkt *pkt = new NetwPkt(appPkt->getName(), appPkt->getKind());
     pkt->setBitLength(headerLength);
@@ -79,25 +81,25 @@ NetwPkt* BaseNetwLayer::encapsMsg(cPacket *appPkt) {
     NetwControlInfo* cInfo = dynamic_cast<NetwControlInfo*>(appPkt->removeControlInfo());
 
     if(cInfo == 0){
-	EV << "warning: Application layer did not specifiy a destination L3 address\n"
+	EVT << "warning: Application layer did not specifiy a destination L3 address\n"
 	   << "\tusing broadcast address instead\n";
 	netwAddr = L3BROADCAST;
     } else {
-	EV <<"CInfo removed, netw addr="<< cInfo->getNetwAddr()<<endl;
+	EVT <<"CInfo removed, netw addr="<< cInfo->getNetwAddr()<<endl;
         netwAddr = cInfo->getNetwAddr();
 	delete cInfo;
     }
 
     pkt->setSrcAddr(myNetwAddr);
     pkt->setDestAddr(netwAddr);
-    EV << " netw "<< myNetwAddr << " sending packet" <<endl;
+    EVT << " netw "<< myNetwAddr << " sending packet" <<endl;
     if(netwAddr == L3BROADCAST) {
-        EV << "sendDown: nHop=L3BROADCAST -> message has to be broadcasted"
+        EVT << "sendDown: nHop=L3BROADCAST -> message has to be broadcasted"
            << " -> set destMac=L2BROADCAST\n";
         macAddr = L2BROADCAST;
     }
     else{
-        EV <<"sendDown: get the MAC address\n";
+        EVT <<"sendDown: get the MAC address\n";
         macAddr = arp->getMacAddr(netwAddr);
     }
 
@@ -105,7 +107,7 @@ NetwPkt* BaseNetwLayer::encapsMsg(cPacket *appPkt) {
 
     //encapsulate the application packet
     pkt->encapsulate(appPkt);
-    EV <<" pkt encapsulated\n";
+    EVT <<" pkt encapsulated\n";
     return pkt;
 }
 
@@ -120,7 +122,7 @@ NetwPkt* BaseNetwLayer::encapsMsg(cPacket *appPkt) {
 void BaseNetwLayer::handleLowerMsg(cMessage* msg)
 {
     NetwPkt *m = static_cast<NetwPkt *>(msg);
-    EV << " handling packet from " << m->getSrcAddr() << endl;
+    EVT << " handling packet from " << m->getSrcAddr() << endl;
     sendUp(decapsMsg(m));
 }
 
@@ -159,7 +161,7 @@ void BaseNetwLayer::handleLowerControl(cMessage* msg)
 		delete msg;
 		break;
 	default:
-		EV << "BaseNetwLayer does not handle control messages called " << msg->getName() << endl;
+		EVT << "BaseNetwLayer does not handle control messages called " << msg->getName() << endl;
 		delete msg;
 	}
 }
