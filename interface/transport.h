@@ -47,6 +47,13 @@ protected:
 	    int numApplLayer;
 	    simtime_t elab_time;
 
+	    enum queue_status{
+	    	IDLE=1,
+	    	TX
+	    };
+
+	    transp_status status;
+
 	    sckIdMap scksID;
 
 	    // bind socket

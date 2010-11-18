@@ -58,6 +58,8 @@ void transport::initialize(int stage){
 					(isGateVector("upperGateIn") ? gateSize("upperGateIn") : -20 )<<endl;
 
 	        nbPacketDropped = 0;
+
+	        status = IDLE;
 		}
 }
 
@@ -214,8 +216,25 @@ void transport::handleUpperMsg(cMessage *msg){
     pkt->setControlInfo(new NetwToMacControlInfo(ctrl->getDestination()));
 
 	EVT<<"Received packet from up -- port "<< ctrl->getSrcPort()<<"\nSending packet down\n";
-	sendDelayed(pkt,elab_time,lowerGateOut);
+
+	exec_step(pkt);
+
+	//sendDelayed(pkt,elab_time,lowerGateOut);
 	}
+}
+
+void transport::exec_step(cPacket *pkt){
+
+	EVT << "Transport execution next step.\n";
+	switch(status){
+
+	case IDLE:
+		sendPkt(pkt,elab_time);
+		break;
+	case BUSY:
+
+	}
+
 }
 
 void transport::handleUpperControl(cMessage *msg){
