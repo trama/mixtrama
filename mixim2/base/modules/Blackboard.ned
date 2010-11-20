@@ -4,7 +4,6 @@ package mixtrama.mixim2.base.modules;
 // exchange
 simple Blackboard
 {
-    parameters:
-        bool coreDebug; // debug switch for the base framework
+
 }
 

@@ -8,5 +8,7 @@ simple BaseUtility extends Blackboard
     parameters:
         @class(BaseUtility);
         @display("i=block/blackboard");
+            
+        bool coreDebug; // debug switch for the base framework
 }
 

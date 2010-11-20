@@ -1,6 +1,5 @@
 package mixtrama;
 
-import mixtrama.mixim2.base.modules.BaseWorldUtility;
 import mixtrama.mixim2.base.connectionManager.ConnectionManager;
 
 
@@ -19,7 +18,7 @@ network mixtrama
             parameters:
                 @display("p=492,54;b=42,42,rect,green;i=abstract/router");
         }
-        world: BaseWorldUtility {
+        world: WorldUtilityStats {
             parameters:
                 playgroundSizeX = playgroundSizeX;
                 playgroundSizeY = playgroundSizeY;

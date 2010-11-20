@@ -60,6 +60,8 @@ void csma::initialize(int stage) {
 		transmissionAttemptInterruptedByRx = false;
 		nbTxFrames = 0;
 		nbRxFrames = 0;
+		nbRxFramesNotForMe = 0;
+		nbRxFrameBroadcast = 0;
 		nbMissedAcks = 0;
 		nbTxAcks = 0;
 		nbRecvdAcks = 0;
@@ -137,6 +139,8 @@ void csma::finish() {
 	if (stats) {
 		recordScalar("nbTxFrames", nbTxFrames);
 		recordScalar("nbRxFrames", nbRxFrames);
+		recordScalar("nbRxFramesNotForMe", nbRxFramesNotForMe);
+		recordScalar("nbRxFrameBroadcast", nbRxFrameBroadcast);
 		recordScalar("nbDroppedFrames", nbDroppedFrames);
 		recordScalar("nbMissedAcks", nbMissedAcks);
 		recordScalar("nbRecvdAcks", nbRecvdAcks);
@@ -250,6 +254,7 @@ void csma::updateStatusIdle(t_mac_event event, cMessage *msg) {
 
 	case EV_BROADCAST_RECEIVED:
 		EVT << "(23) FSM State IDLE_1, EV_BROADCAST_RECEIVED: Nothing to do." << endl;
+		nbRxFrameBroadcast++;
 		sendUp(decapsMsg(static_cast<MacPkt *>(msg)));
 		delete msg;
 		break;
@@ -809,6 +814,7 @@ void csma::handleLowerMsg(cMessage *msg) {
 		executeMac(EV_BROADCAST_RECEIVED, macPkt);
 	} else {
 		EVT << "packet not for me, deleting...\n";
+		nbRxFramesNotForMe++;
 		delete macPkt;
 	}
 }

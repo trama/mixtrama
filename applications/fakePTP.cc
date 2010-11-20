@@ -19,6 +19,7 @@
 #include <Packet.h>
 #include <BaseMacLayer.h>
 #include "tutils.h"
+#include "NetPkt_m.h"
 
 Define_Module(fakePTP);
 
@@ -29,9 +30,6 @@ void fakePTP::initialize(int stage)
     if (stage == 0)
     {
         delayTimer = new cMessage("delay-timer", SEND_BROADCAST_TIMER);
-
-        //arp = BaseArpAccess().get();
-        //myNetwAddr = arp->myNetwAddr(this);
 
         myNetwAddr = par("myAddr");
 
@@ -45,10 +43,15 @@ void fakePTP::initialize(int stage)
 
         nbPacketDropped = 0;
 
+        lowerGateOut1 = findGate("lowerGateOut1");
+        lowerGateOut2 = findGate("lowerGateOut2");
+        lowerGateIn1 = findGate("lowerGateIn1");
+        lowerGateIn2 = findGate("lowerGateIn2");
+
     } else if (stage == 1){
         if (burstSize > 0) {
             remainingBurst = burstSize;
-            scheduleAt(70, delayTimer);//dblrand() * packetTime * burstSize / pppt, delayTimer);
+            scheduleAt(0.5, delayTimer);//dblrand() * packetTime * burstSize / pppt, delayTimer);
 
         }
 //    if (stage!=3)
@@ -77,21 +80,29 @@ void fakePTP::initialize(int stage)
 //    if (destAddresses.empty())
 //        return;
 //
-      bindToPort(localPort1);
-      bindToPort(localPort2);
+      bindToPort(localPort1,false);
+      bindToPort(localPort2,false);
     }
 }
 
-void fakePTP::bindToPort(int port)
+void fakePTP::bindToPort(int port,bool isControlPort)
 {
-    EVT << "Binding to transport  port " << port << endl;
+    EVT << "Binding to transport port " << port << endl;
 
     cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
     transpCInfo *ctrl = new transpCInfo();
     ctrl->setSrcPort(port);
+    ctrl->setIsControlPort(isControlPort);
     //ctrl->setSockId(getId());
     msg->setControlInfo(ctrl);
-    send(msg, "lowerControlOut");
+    if(isControlPort)
+    	send(msg, "lowerControlOut");
+    else if(port==localPort1){
+    	send(msg, "lowerGateOut1");
+    }
+    else
+    	send(msg, "lowerGateOut2");
+
 }
 
 void fakePTP::finish()
@@ -99,6 +110,15 @@ void fakePTP::finish()
     recordScalar("dropped", nbPacketDropped);
 
     cancelAndDelete(delayTimer);
+}
+
+void fakePTP::handleMessage(cMessage* msg)
+{
+	if(msg->getArrivalGateId()==lowerGateIn1 || msg->getArrivalGateId()==lowerGateIn2 ){
+        recordPacket(PassedMessage::INCOMING,PassedMessage::LOWER_CONTROL,msg);
+        handleLowerMsg(msg);
+    } else
+    	BaseLayer::handleMessage(msg);
 }
 
 void fakePTP::handleSelfMsg(cMessage * msg)
@@ -125,6 +145,14 @@ void fakePTP::handleSelfMsg(cMessage * msg)
 
 void fakePTP::handleLowerMsg(cMessage * msg)
 {
+	EVT << "New message arrived from down...";
+
+	NetPkt *net = check_and_cast<NetPkt *>(msg);
+
+	int srcPort = net->getSrcPort();
+
+	EVT << "Message is for port " << srcPort <<" Deleting it!\n";
+
     delete msg;
     msg = 0;
 }
@@ -155,11 +183,16 @@ void fakePTP::sendBroadcast()
 
     pkt->setControlInfo(ctrl);
 
-    if(currlocalPort==820)
+    if(currlocalPort==820){
+    	send(pkt,lowerGateOut2);
     	currlocalPort--;
-    else
+    }
+    else{
+    	send(pkt,lowerGateOut1);
     	currlocalPort++;
+    }
 
 
-    sendDown(pkt);
+
+
 }

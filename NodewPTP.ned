@@ -25,7 +25,7 @@ module NodewPTP
         battery: SimpleBattery {
             @display("p=320,57;i=block/control");
         }
-        utility: BaseUtility {
+        bb: BaseUtility {
             parameters:
                 @display("p=320,140;b=24,24,rect,black;i=block/blackboard");
         }

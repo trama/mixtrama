@@ -35,6 +35,16 @@ void BurstApplLayer::initialize(int stage)
             burstSize = par("burstSize");
         else
             burstSize = 3;
+
+        wait = hasPar("waitBeforeSend") ? par("waitBeforeSend") : 0;
+    }
+    else if (stage == 1){
+
+    	if(delayTimer->isScheduled()){
+    		cancelEvent(delayTimer);
+    		scheduleAt(simTime()+wait, delayTimer);
+    	}
+
     }
 }
 
@@ -47,6 +57,7 @@ void BurstApplLayer::handleSelfMsg(cMessage *msg)
         for(int i=0; i<burstSize; i++) {
             sendBroadcast();
         }
+        delete msg;
         break;
     default:
         EVT <<" Unkown selfmessage! -> delete, kind: "<<msg->getKind()<<endl;

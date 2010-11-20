@@ -63,6 +63,11 @@ protected:
 
 	BaseWorldUtility* world;
 
+    int lowerGateOut1;
+    int lowerGateOut2;
+    int lowerGateIn1;
+    int lowerGateIn2;
+
 public:
 
 
@@ -71,6 +76,8 @@ protected:
 	virtual void initialize(int stage);
 
 	virtual void finish();
+
+	virtual void handleMessage(cMessage *msg);
 
 	/** @brief Handle self messages such as timer... */
 	virtual void handleSelfMsg(cMessage *msg);
@@ -98,7 +105,7 @@ protected:
 	/** @brief Send a broadcast message to lower layer. */
 	virtual void sendBroadcast();
 
-	virtual void bindToPort(int port);
+	virtual void bindToPort(int port, bool);
 };
 
 #endif

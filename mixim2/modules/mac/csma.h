@@ -83,6 +83,8 @@ class  csma : public BaseMacLayer
     /*@{*/
 	long nbTxFrames;
 	long nbRxFrames;
+	long nbRxFramesNotForMe;
+	long nbRxFrameBroadcast;
 	long nbMissedAcks;
 	long nbRecvdAcks;
 	long nbDroppedFrames;

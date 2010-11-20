@@ -50,6 +50,9 @@ class BurstApplLayer : public TestApplLayer
 
   /** @brief Number of messages to send in a burst*/
   int burstSize;
+
+  simtime_t wait;
+
 };
 
 #endif

@@ -20,44 +20,43 @@ public:
 	virtual void finish();
 	virtual ~transport();
 
-    struct sck //socket definition
-    {
-        //int sockId; // supposed to be unique across apps-- module ID
-        int appGateIndex;
-        int localPort;
-        bool isControlPort;
-        //int localPort2;
-        //int controlPort1;
-        //int controlPort2;
-    };
-
-    typedef std::list<sck *> sckl; // list of sockets
-    typedef std::map<int,sck *> sckIdMap;
+	struct sck //socket definition
+	{
+		//int sockId; // supposed to be unique across apps-- module ID
+		int appGateIndex;
+		int localPort;
+		bool isControlPort;
+		//int localPort2;
+		//int controlPort1;
+		//int controlPort2;
+	};
 
 protected:
-		virtual void handleMessage(cMessage* msg);
-	    virtual void handleSelfMsg(cMessage* msg);
-	    virtual void handleUpperMsg(cMessage *msg);
-	    virtual void handleLowerMsg(cMessage *msg);
-	    virtual void handleLowerControl(cMessage *msg);
-	    virtual void handleUpperControl(cMessage *msg);
 
-	    //bool debug;
-	    int nbPacketDropped;
-	    int numApplLayer;
-	    simtime_t elab_time;
 
-	    enum queue_status{
-	    	IDLE=1,
-	    	TX
-	    };
+	typedef std::list<sck *> sckl; // list of sockets
+	typedef std::map<int,sck *> sckIdMap;
+	virtual void handleMessage(cMessage* msg);
+	virtual void handleSelfMsg(cMessage* msg);
+	virtual void handleUpperMsg(cMessage *msg);
+	virtual void handleLowerMsg(cMessage *msg);
+	virtual void handleLowerControl(cMessage *msg);
+	virtual void handleUpperControl(cMessage *msg);
 
-	    transp_status status;
+	//bool debug;
+	int nbPacketDropped;
+	int numApplLayer;
+	simtime_t elab_time;
 
-	    sckIdMap scksID;
+	cQueue *pqueue; //coda dei pacchetti da inviare
 
-	    // bind socket
-	    virtual void bind(int gateIndex, transpCInfo *ctrl);
+	cMessage *delayTimer;
+
+	virtual void exec_step();
+	sckIdMap scksID;
+
+	// bind socket
+	virtual void bind(int gateIndex, transpCInfo *ctrl);
 };
 
 #endif /* TRANSPORT_H_ */

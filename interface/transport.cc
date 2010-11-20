@@ -37,6 +37,8 @@ void transport::initialize(int stage){
 			EVT << "Transport elab_time "<<elab_time<<endl;
 			//for now, only one app layer supported
 
+			delayTimer = new cMessage("delay-timer",2662);
+
 	        upperGateIn  = gateBaseId("upperGateIn");
 	        upperGateOut = gateBaseId("upperGateOut");
 	        upperControlIn  = gateBaseId("upperControlIn");
@@ -59,7 +61,16 @@ void transport::initialize(int stage){
 
 	        nbPacketDropped = 0;
 
-	        status = IDLE;
+		}
+		else if (stage == 1){
+
+			pqueue = new cQueue("Packet Queue");
+
+			EVT << "Created packet queue, with dimension "<<pqueue->length()<<endl;
+
+			//WATCH(pqueue->length());
+
+
 		}
 }
 
@@ -87,34 +98,6 @@ void transport::bind(int gateIndex, transpCInfo *ctrl)
     scksID[sd->localPort] = sd;
     EVT << "Added socket to map.\n";
 
-
-/*    std::map<int,sck*>::iterator it = scksID.find(sd->localPort);
-
-    if(it==scksID.end() && !sd->isControlPort){
-    	scksID[sd->localPort] = sd;
-    	EVT << "Added socket to map.\n";
-    }else{
-    	if(sd->isControlPort){
-    		if(it->second->isControlPort){
-    			it->second->controlPort2 = sd->localPort1;
-    			EVT << "Added second control port to socket\n";
-    		} else {
-    			it->second->controlPort1 = sd->localPort1;
-    			EVT << "Added first control port to socket\n";
-    		}
-    	} else {
-    		it->second->localPort2=sd->localPort1;
-    		EVT << "Added second message port to socket\n";
-    	}
-
-    }*/
-
-    //first time sck is created it is added to map. Any other time the same module tries to bind to this
-    //one, other infos are added to the same map entry.
-
-    // add to socketsByPortMap
-    //SockDescList& list = socketsByPortMap[sd->localPort]; // create if doesn't exist
-    //list.push_back(sd);
 }
 
 void transport::handleMessage(cMessage* msg)
@@ -163,7 +146,14 @@ transport::~transport(){
 
 }
 
-void transport::handleSelfMsg(cMessage* msg){}
+void transport::handleSelfMsg(cMessage* msg){
+
+	if(msg->getKind()==2662){
+		EVT << "Another packet has to be sent from the queue\n";
+		exec_step();
+	}
+
+}
 
 void transport::handleLowerMsg(cMessage *msg){
 	EVT<<"Received packet from down -- Analyzing!\n";//\nSending packet up\n";
@@ -215,24 +205,39 @@ void transport::handleUpperMsg(cMessage *msg){
     // necessario per il mac perché si prende la destinazione da qui!
     pkt->setControlInfo(new NetwToMacControlInfo(ctrl->getDestination()));
 
-	EVT<<"Received packet from up -- port "<< ctrl->getSrcPort()<<"\nSending packet down\n";
+	EVT<<"Received packet from up -- port "<< ctrl->getSrcPort()<<"\nEnqueuing packet\n";
 
-	exec_step(pkt);
+	pqueue->insert(pkt);
 
-	//sendDelayed(pkt,elab_time,lowerGateOut);
+	exec_step();
+
 	}
 }
 
-void transport::exec_step(cPacket *pkt){
+void transport::exec_step(){
 
-	EVT << "Transport execution next step.\n";
-	switch(status){
+	EVT << "Transport execution next step. Analyzing queue.\n";
 
-	case IDLE:
-		sendPkt(pkt,elab_time);
-		break;
-	case BUSY:
+	if(pqueue->empty()){
+		EVT << "Queue is empty. Returning.\n";
+		return;
+	}
 
+	if(pqueue->length()==1){
+		EVT << "Only one packet in queue, sending down and emptying queue. ";
+		cPacket *pkt = (cPacket *)pqueue->pop();
+		EVT << "Now Queue has length "<<pqueue->length()<<endl;
+		sendDelayed(pkt,elab_time,lowerGateOut);
+		return;
+	}
+
+	if(pqueue->length()>1){
+
+		EVT << "More than one packet in queue, sending down the oldest one. ";
+		cPacket *pkt = (cPacket *)pqueue->pop();
+		EVT << "Now Queue has length "<<pqueue->length()<<endl;
+		sendDelayed(pkt,elab_time,lowerGateOut);
+		scheduleAt(0.001, delayTimer);
 	}
 
 }
