@@ -1,0 +1,3 @@
+package xsimulator;
+
+@license(LGPL);
