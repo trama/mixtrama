@@ -63,8 +63,10 @@ module Slave
         appl.lowerControlOut --> transport.upperControlIn++;
         transport.upperGateOut++ --> appl.lowerGateIn;
         transport.upperControlOut++ --> appl.lowerControlIn;
-        slave.lowerControlOut --> transport.upperControlIn++;
         transport.upperControlOut++ --> slave.lowerControlIn;
-        slave.lowerGateOut --> transport.upperGateIn++;
-        transport.upperGateOut++ --> slave.lowerGateIn;
+        slave.lowerControlOut --> transport.upperControlIn++;
+        transport.upperGateOut++ --> slave.lowerGateIn1;
+        transport.upperGateOut++ --> slave.lowerGateIn2;
+        slave.lowerGateOut1 --> transport.upperGateIn++;
+        slave.lowerGateOut2 --> transport.upperGateIn++;
 }

@@ -123,9 +123,11 @@ double Clock::getTimestamp(){
 	 * clock[i]=clock[i-1]+(1+gamma[i])*T+normal(0,std_theta);
 	 */
 	EVT << "CLOCK : get timestamp" << endl;
+	EVT << "CurrentSimTime = " << currentSimTime << endl;
 	while(currentSimTime>simTime().dbl()){
 		gamma=gamma+normal(0,std_gamma);
 		lclock=lclock+(1+gamma)*T+normal(0,std_theta);
+		EVT << "Son qui!\n";
 		outFile<<lclock<<"\t"<<gamma<<endl;
 		currentSimTime=currentSimTime+T;
 	}

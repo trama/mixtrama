@@ -65,6 +65,8 @@ module Master
         transport.upperControlOut++ --> appl.lowerControlIn;
         master.lowerControlOut --> transport.upperControlIn++;
         transport.upperControlOut++ --> master.lowerControlIn;
-        master.lowerGateOut --> transport.upperGateIn++;
-        transport.upperGateOut++ --> master.lowerGateIn;
+        master.lowerGateOut1 --> transport.upperGateIn++;
+        master.lowerGateOut2 --> transport.upperGateIn++;
+        transport.upperGateOut++ --> master.lowerGateIn1;
+        transport.upperGateOut++ --> master.lowerGateIn2;
 }

@@ -87,9 +87,11 @@ void PTPNode::initialize(int stage){
 
 		localPort1 = par("localPort1");
 		localPort2 = par("localPort2");
+
 	}else if (stage==1){
 		bindToPort(localPort1,false);
 		bindToPort(localPort2,false);
+		//bindToPort(321,true);
 	}
 
 }//end initialize

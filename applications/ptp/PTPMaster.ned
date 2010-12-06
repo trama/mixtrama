@@ -19,11 +19,12 @@ module PTPMaster
 {
     @display("bgb=154,233");
     gates:
-        input lowerGateIn; // from upper layers
-        output lowerGateOut; // to upper layers
+        input lowerGateIn1; // from upper layers
+        input lowerGateIn2;
+        output lowerGateOut1; // to upper layers
+        output lowerGateOut2; // to upper layers
         output lowerControlOut; // control connection
         input lowerControlIn;
-        //input LowerLayerIn;
     submodules:
         master: PTPNode {
             @display("p=80,172");
@@ -44,9 +45,10 @@ module PTPMaster
     connections allowunconnected:
         Mclock.out_clock --> master.in_clock;
         master.out_clock --> Mclock.in_clock;
-        master.out_general --> lowerGateOut;
-        master.out_event --> lowerControlOut;
-        lowerControlIn --> master.in_event;
-        lowerGateIn --> master.in_general;
-        //LowerLayerIn --> master.in_lowLayer;
+        master.out_event --> lowerGateOut1;
+        master.out_general --> lowerGateOut2;
+        master.out_lowLayer --> lowerControlOut;
+        lowerControlIn --> master.in_lowLayer;
+        lowerGateIn1 --> master.in_event;
+        lowerGateIn2 --> master.in_general;
 }

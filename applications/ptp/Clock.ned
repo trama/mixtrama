@@ -9,6 +9,7 @@ simple Clock
         volatile double std_gamma;
         volatile double std_theta;
         volatile double std_noise;
+        bool debug;
     gates:
         input in_clock;
         output out_clock;

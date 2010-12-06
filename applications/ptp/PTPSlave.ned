@@ -17,9 +17,10 @@ package mixtrama.applications.ptp;
 
 module PTPSlave
 {
-    @display("bgb=133,201");
+    @display("bgb=283,275");
     gates:
-        input lowerGateIn; // from upper layers
+        input lowerGateIn1; // from upper layers
+        input lowerGateIn2;
         output lowerGateOut1; // to upper layers
         output lowerGateOut2; // to upper layers
         output lowerControlOut; // control connection
@@ -27,14 +28,14 @@ module PTPSlave
         //input lowerLayerIn;
     submodules:
         slave: PTPNode {
-            @display("p=63,141");
+            @display("p=112,157");
             syncInterval = 1;
             MACaddress = 1;
             MasterMACaddress = 2;
             ptpNode = 0;
         }
         Sclock: Clock {
-            @display("p=63,32");
+            @display("p=224,44");
             offset = 0;
             skew = 1;
             T = 1;
@@ -45,9 +46,10 @@ module PTPSlave
     connections allowunconnected:
         Sclock.out_clock --> slave.in_clock;
         slave.out_clock --> Sclock.in_clock;
-        lowerGateIn --> slave.in_general;
-        slave.out_general --> lowerGateOut1;
-        lowerControlIn --> slave.in_event;
-        slave.out_event --> lowerControlOut;
-        //lowerLayerIn --> slave.in_lowLayer;
+        slave.out_event --> lowerGateOut1;
+        slave.out_general --> lowerGateOut2;
+        slave.out_lowLayer --> lowerControlOut;
+        lowerGateIn1 --> slave.in_event;
+        lowerGateIn2 --> slave.in_general;
+        lowerControlIn --> slave.in_lowLayer;
 }

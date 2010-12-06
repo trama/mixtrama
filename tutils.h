@@ -13,4 +13,7 @@
 // along with this program.  If not, see http://www.gnu.org/licenses/.
 //
 
-#define EVT (ev.isDisabled()||!debug) ? ev : ev << logName() << "::" << getClassName() << ": "
+
+#ifndef EVT
+#define EVT (ev.isDisabled()||!debug) ? ev : ev << simTime().str() << "::" << logName() << "::" << getClassName() << ": "
+#endif

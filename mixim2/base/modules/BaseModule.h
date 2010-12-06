@@ -33,11 +33,11 @@
 
 
 #define EV_clear (ev.isDisabled()||!debug) ? ev : ev
-#define EVT (ev.isDisabled()||!debug) ? ev : ev << logName() << "::" << getClassName() << ": " //==> EV is now part of <omnetpp.h>
+#define EVT (ev.isDisabled()||!debug) ? ev : ev << simTime().str() << "::" << logName() << "::" << getClassName() << ": " //==> EV is now part of <omnetpp.h>
 
 #ifndef coreEV
 #define coreEV_clear (ev.isDisabled()||!coreDebug) ? ev : ev
-#define coreEV (ev.isDisabled()||!coreDebug) ? ev : ev << logName() << "::" << getClassName() <<": "
+#define coreEV (ev.isDisabled()||!coreDebug) ? ev : ev << simTime().str() << "::" << logName() << "::" << getClassName() <<": "
 #endif
 
 /**

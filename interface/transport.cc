@@ -10,6 +10,8 @@
 #include "NetPkt_m.h"
 #include "NetwToMacControlInfo.h"
 #include "tutils.h"
+#include "Constant.h"
+#include "PTPpacket_m.h"
 
 enum TrafficGenMessageKinds{
 
@@ -163,9 +165,16 @@ void transport::handleLowerMsg(cMessage *msg){
 	int srcPort = net->getSrcPort();
 	std::map<int,sck*>::iterator it = scksID.find(srcPort);
 	int gateIdx = it->second->appGateIndex;
-	EVT << "Message is for port " << srcPort << "which correspond to ID "<< upperGateOut + gateIdx <<endl;
+	EVT << "Message is for port " << srcPort << " which correspond to ID "<< upperGateOut + gateIdx <<endl;
 
-	sendDelayed(msg,elab_time,upperGateOut + gateIdx);
+	if(msg->getKind() < 4){ // PTP messages
+			EVT << "Message to PTP application of type " <<
+					msg->getKind() << endl;
+
+			PTPpacket *ptp = check_and_cast<PTPpacket*>(net->decapsulate());
+			sendDelayed(ptp,elab_time,upperGateOut + gateIdx);
+	} else
+		sendDelayed(msg,elab_time,upperGateOut + gateIdx);
 }
 
 void transport::handleLowerControl(cMessage *msg){
@@ -190,7 +199,29 @@ void transport::handleUpperMsg(cMessage *msg){
 		bind(msg->getArrivalGate()->getIndex(), ctrl);
 		delete ctrl;
 		delete msg;
+	} else if(msg->getKind() < 4){ // PTP messages
+		EVT << "Message from PTP application of type " <<
+				msg->getKind() << endl;
+
+		PTPpacket *ptp = check_and_cast<PTPpacket*>(msg);
+
+		NetPkt *pkt = new NetPkt("BROADCAST_MESSAGE", BROADCAST_MESSAGE);
+
+		pkt->setBitLength(static_cast<cPacket*>(msg)->getBitLength());
+		pkt->setSrcPort(ptp->getPort());
+		pkt->setSrcAddr(ptp->getSource());
+		pkt->setDestAddr(ptp->getDestination());
+		pkt->encapsulate(ptp);
+	    pkt->setControlInfo(new NetwToMacControlInfo(ptp->getDestination()));
+
+		EVT<<"From port "<< ptp->getPort()<<" --> Enqueuing packet\n";
+
+		pqueue->insert(pkt);
+
+		exec_step();
+
 	} else {
+		EVT << "Message from up\n.";
 
 	transpCInfo *ctrl = check_and_cast<transpCInfo *>(msg->removeControlInfo());
 
@@ -205,7 +236,7 @@ void transport::handleUpperMsg(cMessage *msg){
     // necessario per il mac perché si prende la destinazione da qui!
     pkt->setControlInfo(new NetwToMacControlInfo(ctrl->getDestination()));
 
-	EVT<<"Received packet from up -- port "<< ctrl->getSrcPort()<<"\nEnqueuing packet\n";
+	EVT<<"Received packet from up -- port "<< ctrl->getSrcPort()<<" --> Enqueuing packet\n";
 
 	pqueue->insert(pkt);
 
@@ -224,7 +255,7 @@ void transport::exec_step(){
 	}
 
 	if(pqueue->length()==1){
-		EVT << "Only one packet in queue, sending down and emptying queue. ";
+		EVT << "Only one packet in queue, sending down and emptying queue.\n";
 		cPacket *pkt = (cPacket *)pqueue->pop();
 		EVT << "Now Queue has length "<<pqueue->length()<<endl;
 		sendDelayed(pkt,elab_time,lowerGateOut);
@@ -233,7 +264,7 @@ void transport::exec_step(){
 
 	if(pqueue->length()>1){
 
-		EVT << "More than one packet in queue, sending down the oldest one. ";
+		EVT << "More than one packet in queue, sending down the oldest one.\n";
 		cPacket *pkt = (cPacket *)pqueue->pop();
 		EVT << "Now Queue has length "<<pqueue->length()<<endl;
 		sendDelayed(pkt,elab_time,lowerGateOut);
