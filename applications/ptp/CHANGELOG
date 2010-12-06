@@ -1,0 +1,5 @@
+Changes added by trama:
+
+- PTPNode are a subclass of BaseModule (only to support better debugging info)
+- included tutils to support EVT
+- splitted in master and slave node: defined two compound module along with their connections

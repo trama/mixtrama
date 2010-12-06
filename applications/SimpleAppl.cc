@@ -48,7 +48,8 @@ void SimpleAppl::initialize(int stage)
     } else if (stage == 1){
         if (burstSize > 0) {
             remainingBurst = burstSize;
-            scheduleAt(dblrand() * packetTime * burstSize / pppt, delayTimer);
+            //scheduleAt(dblrand() * packetTime * burstSize / pppt, delayTimer);
+            scheduleAt(200, delayTimer);
         }
 //    if (stage!=3)
 //        return;

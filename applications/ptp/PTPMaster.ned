@@ -15,35 +15,25 @@
 
 package mixtrama.applications.ptp;
 
-network PtpNetwork
+module PTPMaster
 {
-    @display("bgb=261,233");
+    @display("bgb=154,233");
+    gates:
+        input lowerGateIn; // from upper layers
+        output lowerGateOut; // to upper layers
+        output lowerControlOut; // control connection
+        input lowerControlIn;
+        //input LowerLayerIn;
     submodules:
-        slave: PTPNode {
-            @display("p=41,44");
-            syncInterval = 1;
-            MACaddress = 1;
-            MasterMACaddress = 2;
-            ptpNode = 0;
-        }
         master: PTPNode {
-            @display("p=41,162");
+            @display("p=80,172");
             syncInterval = 1;
             MACaddress = 2;
             MasterMACaddress = 2;
             ptpNode = 1;
         }
-        Sclock: Clock {
-            @display("p=175,44");
-            offset = 0;
-            skew = 1;
-            T = 1;
-            std_gamma = 0;
-            std_theta = 0;
-            std_noise = 0;
-        }
         Mclock: Clock {
-            @display("p=175,162");
+            @display("p=80,49");
             offset = 0;
             skew = 0;
             T = 1;
@@ -52,12 +42,11 @@ network PtpNetwork
             std_noise = 0;
         }
     connections allowunconnected:
-        Sclock.out_clock --> slave.in_clock;
-        slave.out_clock --> Sclock.in_clock;
         Mclock.out_clock --> master.in_clock;
         master.out_clock --> Mclock.in_clock;
-        slave.out_event --> master.in_event;
-        master.out_event --> slave.in_event;
-        slave.out_general --> master.in_general;
-        master.out_general --> slave.in_general;
+        master.out_general --> lowerGateOut;
+        master.out_event --> lowerControlOut;
+        lowerControlIn --> master.in_event;
+        lowerGateIn --> master.in_general;
+        //LowerLayerIn --> master.in_lowLayer;
 }

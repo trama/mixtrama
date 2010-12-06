@@ -7,15 +7,15 @@ import mixtrama.mixim2.modules.mobility.ConstSpeedMobility;
 import mixtrama.mixim2.base.modules.BaseUtility;
 import mixtrama.interface.transport;
 import mixtrama.interface.dummyArp;
-import mixtrama.applications.fakePTP;
+import mixtrama.applications.ptp.PTPSlave;
 import mixtrama.applications.SimpleAppl;
 
 
-module NodewPTP
+module Slave
 {
     parameters:
         int addr;
-        @display("bgb=388,386,white;bgl=3");
+        @display("bgb=388,386,white;bgl=4");
     gates:
         input radioIn; // gate for sendDirect
     submodules:
@@ -48,8 +48,8 @@ module NodewPTP
         arp: dummyArp {
             @display("p=249,211");
         }
-        fakePTP: fakePTP {
-            @display("p=128,45");
+        slave: PTPSlave {
+            @display("p=174,76");
         }
     connections:
         radioIn --> nic.radioIn;
@@ -59,14 +59,12 @@ module NodewPTP
         nic.upperControlOut --> transport.lowerControlIn;
         nic.upperGateOut --> transport.lowerGateIn;
 
-        fakePTP.lowerGateOut1 --> transport.upperGateIn++;
-        transport.upperGateOut++ --> fakePTP.lowerGateIn1;
-        fakePTP.lowerGateOut2 --> transport.upperGateIn++;
-        transport.upperGateOut++ --> fakePTP.lowerGateIn2;
-        transport.upperControlOut++ --> fakePTP.lowerControlIn;
-        fakePTP.lowerControlOut --> transport.upperControlIn++;
         appl.lowerGateOut --> transport.upperGateIn++;
         appl.lowerControlOut --> transport.upperControlIn++;
         transport.upperGateOut++ --> appl.lowerGateIn;
         transport.upperControlOut++ --> appl.lowerControlIn;
+        slave.lowerControlOut --> transport.upperControlIn++;
+        transport.upperControlOut++ --> slave.lowerControlIn;
+        slave.lowerGateOut --> transport.upperGateIn++;
+        transport.upperGateOut++ --> slave.lowerGateIn;
 }

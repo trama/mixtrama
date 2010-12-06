@@ -1,4 +1,4 @@
-package xsimulator;
+package mixtrama.applications.ptp;
 
 simple Clock
 {
@@ -10,6 +10,6 @@ simple Clock
         volatile double std_theta;
         volatile double std_noise;
     gates:
-        input  in_clock;
+        input in_clock;
         output out_clock;
 }

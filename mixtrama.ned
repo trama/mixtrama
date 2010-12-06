@@ -25,10 +25,15 @@ network mixtrama
                 playgroundSizeZ = playgroundSizeZ;
                 @display("p=70,39;i=misc/globe");
         }
-        node[numSlaves]: NodewPTP {
+        node[numSlaves]: Slave {
             parameters:
                 addr = index;
-                @display("p=147,191;i=device/wifilaptop");
+                @display("p=88,153;i=device/wifilaptop");
+        }
+        master: Master {
+            parameters:
+                addr = 10;
+                @display("p=140,225;i=device/wifilaptop");
         }
         CM80211: ConnectionManager {
             @display("p=211,56;i=abstract/dispatcher");

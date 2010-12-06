@@ -19,10 +19,13 @@ Copyright(C) 2010 Giada Giorgi
 #include <omnetpp.h>
 #include "PTPpacket_m.h"
 #include "Constant.h"
+#include "BaseModule.h"
+#include "tutils.h"
+#include "transpCInfo_m.h"
 
-class PTPNode:public cSimpleModule{
+class PTPNode:public BaseModule{
 protected:
-	virtual void initialize();
+	virtual void initialize(int);
 	virtual void handleMessage(cMessage *msg);
 	virtual void finish();
 private:
@@ -33,7 +36,7 @@ private:
 	void handleLowLayerMessage(cMessage *msg);
 	void servo_clock();
 
-
+	virtual void bindToPort(int port, bool);
 	// ---------------------------------------------------------------------------
 	// State variables
 	// ---------------------------------------------------------------------------
@@ -41,6 +44,8 @@ private:
 	int address;
 	int master;
 	int ptpNode;
+	int localPort1, localPort2;
+
 	double Tsync;
 	simtime_t ts_s_sync;	//Timestamp assegnato dallo slave al msg SYNC
 	simtime_t ts_m_sync;	//Timestamp assegnato dal master al msg SYN
@@ -59,23 +64,54 @@ private:
 
 Define_Module(PTPNode);
 
-void PTPNode::initialize(){
-	Tsync = par("syncInterval");
-	address = par("MACaddress");
-	ptpNode = par("ptpNode");
+void PTPNode::initialize(int stage){
 
-	if(ptpNode==0){
-		ev << "PTPNODE: SLAVE node" << endl;
-		name = "slave";
-		master = par("MasterMACaddress");
-		scheduleAt(simTime()+intuniform(Tsync,14*Tsync)+CONSTDELAY, new cMessage("SLtimer"));
-	}else{
-		ev << "PTPNODE: MASTER node" << endl;
-		name = "master";
-		master = address;
-		scheduleAt(simTime()+Tsync, new cMessage("MStimer"));
+	BaseModule::initialize(stage);
+
+	if(stage==0){
+		Tsync = par("syncInterval");
+		address = par("MACaddress");
+		ptpNode = par("ptpNode");
+
+		if(ptpNode==0){
+			EVT << "PTPNODE: SLAVE node" << endl;
+			name = "slave";
+			master = par("MasterMACaddress");
+			scheduleAt(simTime()+intuniform(Tsync,14*Tsync)+CONSTDELAY, new cMessage("SLtimer"));
+		}else{
+			EVT << "PTPNODE: MASTER node" << endl;
+			name = "master";
+			master = address;
+			scheduleAt(simTime()+Tsync, new cMessage("MStimer"));
+		}
+
+		localPort1 = par("localPort1");
+		localPort2 = par("localPort2");
+	}else if (stage==1){
+		bindToPort(localPort1,false);
+		bindToPort(localPort2,false);
 	}
+
 }//end initialize
+
+void PTPNode::bindToPort(int port,bool isControlPort)
+{
+    EVT << "Binding to transport port " << port << endl;
+
+    cMessage *msg = new cMessage("UDP_C_BIND", UDP_C_BIND);
+    transpCInfo *ctrl = new transpCInfo();
+    ctrl->setSrcPort(port);
+    ctrl->setIsControlPort(isControlPort);
+    //ctrl->setSockId(getId());
+    msg->setControlInfo(ctrl);
+    if(isControlPort)
+    	send(msg, "lowerControlOut");
+    else if(port==localPort1){
+    	send(msg, "out_event");
+    }
+    else
+    	send(msg, "out_general");
+}
 
 void PTPNode::handleMessage(cMessage *msg){
 	//Timer

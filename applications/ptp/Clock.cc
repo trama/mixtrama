@@ -20,17 +20,22 @@ Copyright(C) 2010 Giada Giorgi
 #include <fstream>
 #include "PTPpacket_m.h"
 #include "Constant.h"
+#include "tutils.h"
+#include "BaseModule.h"
 using namespace std;
 
 
-class Clock:public cSimpleModule{
+class Clock : public BaseModule {
 protected:
-	virtual void initialize();
+	virtual void initialize(int stage);
 	virtual void handleMessage(cMessage *msg);
 	virtual void finish();
  	//virtual void updateDisplay();
 	virtual void openfile();
 	virtual void closefile();
+
+//	bool debug;
+
 private:
 	double getTimestamp();
 	void adjtimex(double value, int type);
@@ -44,29 +49,35 @@ private:
 	double gamma;
 	double currentSimTime;
 	ofstream outFile;
+
+
 };
 
 Define_Module(Clock);
 
-void Clock::initialize(){
+void Clock::initialize(int stage){
 	/*
 	 * Initialization of input parameters
 	 */
-	offset = par("offset");
-	skew   = par("skew");
-	std_gamma  = par("std_gamma");
-	std_theta  = par("std_theta");
-	std_noise  = par("std_noise");
-	T  = par("T");
-	currentSimTime=simTime().dbl();
-	lclock = currentSimTime+offset;
-	gamma = skew;
+	BaseModule::initialize(stage);
+	if (stage == 0) {
+	    hasPar("debug") ? debug = par("debug").boolValue() : debug = false;
+		offset = par("offset");
+		skew   = par("skew");
+		std_gamma  = par("std_gamma");
+		std_theta  = par("std_theta");
+		std_noise  = par("std_noise");
+		T  = par("T");
+		currentSimTime=simTime().dbl();
+		lclock = currentSimTime+offset;
+		gamma = skew;
 
-	openfile();
+		openfile();
+	}
 }
 
 void Clock::handleMessage(cMessage *msg){
-	ev << "CLOCK : handle message" << endl;
+	EVT << "CLOCK : handle message" << endl;
 	if(msg->isSelfMessage()){
 		/*
 		 * For possible future implementations of timers
@@ -111,7 +122,7 @@ double Clock::getTimestamp(){
 	 * gamma[i]=gamma[i-1]+normal(0,std_gamma);
 	 * clock[i]=clock[i-1]+(1+gamma[i])*T+normal(0,std_theta);
 	 */
-	ev << "CLOCK : get timestamp" << endl;
+	EVT << "CLOCK : get timestamp" << endl;
 	while(currentSimTime>simTime().dbl()){
 		gamma=gamma+normal(0,std_gamma);
 		lclock=lclock+(1+gamma)*T+normal(0,std_theta);
@@ -130,11 +141,11 @@ double Clock::getTimestamp(){
 void Clock::adjtimex(double value, int type){
 	switch(type){
 	case 0: //offset update
-		ev << "CLOCK : offset update" << endl;
+		EVT << "CLOCK : offset update" << endl;
 		lclock = lclock - value;
 		break;
 	case 1: //frequency skew update
-		ev << "CLOCK : freq skew update" << endl;
+		EVT << "CLOCK : freq skew update" << endl;
 		gamma = gamma - value;
 		break;
 	}
@@ -145,11 +156,11 @@ void Clock::finish(){
 }
 
 void Clock::openfile(){
-	ev << "CLOCK: file open\n";
+	EVT << "CLOCK: file open\n";
 	outFile.open("clockdata.txt");
 }
 
 void Clock::closefile(){
-	ev << "CLOCK: file close\n";
+	EVT << "CLOCK: file close\n";
 	outFile.close();
 }

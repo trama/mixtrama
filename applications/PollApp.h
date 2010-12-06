@@ -47,7 +47,7 @@ protected:
 	double pppt;
 	int burstSize;
 	int remainingBurst;
-	std::string destination;
+	int destination;
 
 	int catPacket;
 
