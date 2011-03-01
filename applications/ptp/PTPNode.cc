@@ -44,7 +44,6 @@ private:
 	int address;
 	int master;
 	int ptpNode;
-	int localPort1, localPort2;
 
 	double Tsync;
 	simtime_t ts_s_sync;	//Timestamp assegnato dallo slave al msg SYNC
@@ -85,12 +84,10 @@ void PTPNode::initialize(int stage){
 			scheduleAt(simTime()+Tsync, new cMessage("MStimer"));
 		}
 
-		localPort1 = par("localPort1");
-		localPort2 = par("localPort2");
 
 	}else if (stage==1){
-		bindToPort(localPort1,false);
-		bindToPort(localPort2,false);
+		bindToPort(UDP_EVENT_PORT,false);
+		bindToPort(UDP_GENERAL_PORT,false);
 		//bindToPort(321,true);
 	}
 
@@ -108,7 +105,7 @@ void PTPNode::bindToPort(int port,bool isControlPort)
     msg->setControlInfo(ctrl);
     if(isControlPort)
     	send(msg, "lowerControlOut");
-    else if(port==localPort1){
+    else if(port==UDP_EVENT_PORT){
     	send(msg, "out_event");
     }
     else
